@@ -2,8 +2,10 @@ import math
 import matplotlib.pyplot as plt
 from matplotlib import ticker
 import numpy as np
+import pandas as pd
 from scipy.stats import skew, kurtosis
 import seaborn as sns
+from sklearn.model_selection import train_test_split
 from tabulate import tabulate
 import warnings
 
@@ -11,7 +13,8 @@ import warnings
 warnings.filterwarnings('ignore', category=FutureWarning)
 sns.set_theme(style="darkgrid", palette="deep")
 
-
+DATA_PATH = '/home/j/machine-learning/a4/Part1/data/original/diamonds.csv'
+SEED = 309
 UNITS = {
     'price': 'USD',
     'carat': 'ct',
@@ -20,9 +23,34 @@ UNITS = {
     'x': 'mm',
     'y': 'mm',
     'z': 'mm',
+    'volume': 'mm3',
 }
 
 
+# Handling data
+def load_data():
+    return pd.read_csv(DATA_PATH, index_col=0)
+
+
+def split_data(class_name, data):
+    train_X, test_X, train_y, test_y = train_test_split(
+        data.drop(columns=class_name),
+        data[class_name],
+        test_size=0.3,
+        random_state=SEED,
+    )
+    train = pd.concat([train_X, train_y], axis=1)
+    test = pd.concat([test_X, test_y], axis=1)
+    return train, test
+
+
+def write_cleaned_data(data, data_name):
+    data.reset_index(drop=True, inplace=True)
+    data.index = data.index + 1
+    data.to_csv(f'data/cleaned/{data_name}.csv', index=True)
+
+
+# Textual table creator
 def display_table(title, data):
     print(f'{title}')
     print(
@@ -36,7 +64,7 @@ def display_table(title, data):
     print()
 
 
-# Plot types
+# Plots
 def plot_histogram(feature, data, ax):
     bins = (
         data.nunique()
@@ -196,7 +224,6 @@ def create_subplot_layout(num_plots):
         hspace=0.15 * num_rows,
         wspace=0.15 * num_cols,
     )
-
     return flat_axes
 
 

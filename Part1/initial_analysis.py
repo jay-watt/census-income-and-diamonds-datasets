@@ -87,7 +87,7 @@ def plot_class_distribution(class_name, class_data):
 
 
 # Analysis main function
-def analyse_raw_data(data):
+def analyse(data):
     display_stats(data)
     class_name = data.columns[-1]
     display_summary(class_name, data)
