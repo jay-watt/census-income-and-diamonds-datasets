@@ -11,6 +11,17 @@ import warnings
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 
+UNITS = {
+    'price': 'USD',
+    'carat': 'ct',
+    'depth': '% total width',
+    'table': '% total width',
+    'x': 'mm',
+    'y': 'mm',
+    'z': 'mm',
+}
+
+
 # Stats
 def display_table(title, data):
     print(f'{title}')
@@ -25,8 +36,8 @@ def display_table(title, data):
     print()
 
 
-def get_numerical_stats(df):
-    selected_features = df.select_dtypes(include=['number'])
+def get_numerical_stats(data):
+    selected_features = data.select_dtypes(include=['number'])
     stats = selected_features.describe().T
     variance = selected_features.var()
     feature_range = selected_features.max() - selected_features.min()
@@ -37,15 +48,15 @@ def get_numerical_stats(df):
     return stats
 
 
-def get_categorical_stats(df):
-    selected_features = df.select_dtypes(include=['object'])
+def get_categorical_stats(data):
+    selected_features = data.select_dtypes(include=['object'])
     stats = selected_features.describe().T
     stats.index.name = 'feature'
     return stats
 
 
-def display_stats(df):
-    numerical_stats = get_numerical_stats(df)
+def display_stats(data):
+    numerical_stats = get_numerical_stats(data)
     numerical_stats['count'] = numerical_stats['count'].map(
         lambda x: f'{x:,.0f}'
     )
@@ -54,7 +65,7 @@ def display_stats(df):
     )
     display_table('Numerical Summary Statistics', numerical_stats)
 
-    categorical_stats = get_categorical_stats(df)
+    categorical_stats = get_categorical_stats(data)
     categorical_stats[['count', 'unique', 'freq']] = categorical_stats[
         ['count', 'unique', 'freq']
     ].map(lambda x: f'{x:,.0f}')
@@ -62,15 +73,19 @@ def display_stats(df):
 
 
 # Summary
-def display_summary(df, class_name):
+def display_summary(class_name, data):
     numerical = (
-        df.drop(columns=[class_name]).select_dtypes(include=['number']).columns
+        data.drop(columns=[class_name])
+        .select_dtypes(include=['number'])
+        .columns
     )
     categorical = (
-        df.drop(columns=[class_name]).select_dtypes(include=['object']).columns
+        data.drop(columns=[class_name])
+        .select_dtypes(include=['object'])
+        .columns
     )
     summary = {
-        'Instances': f'{len(df):,.0f}',
+        'Instances': f'{len(data):,.0f}',
         'Features': len(categorical) + len(numerical),
         'Categorical': len(categorical),
         'Numerical': len(numerical),
@@ -82,25 +97,34 @@ def display_summary(df, class_name):
 
 
 # Class distribution
-def format_ticks(x, pos):
-    if abs(x - round(x)) < 1e-5:
-        return '{:,.0f}'.format(x)
+def format_ticks(tick_label, pos):
+    if abs(tick_label - round(tick_label)) < 1e-5:
+        return '{:,.0f}'.format(tick_label)
     else:
-        return '{:,.0f}'.format(x) if x >= 1000 else '{:.2f}'.format(x)
+        return (
+            '{:,.0f}'.format(tick_label)
+            if tick_label >= 1000
+            else '{:.2f}'.format(tick_label)
+        )
 
 
-def plot_histogram(feature, data, ax, bins):
+def plot_histogram(feature, data, ax):
+    bins = len(np.histogram_bin_edges(data, bins="doane")) - 1
     hist = sns.histplot(data=data, bins=bins, ax=ax)
 
     # Format
     hist.set_title(
         f"Histogram: {feature.capitalize()} Distribution", fontsize=12
     )
-    hist.set_xlabel(feature.capitalize(), labelpad=10, fontsize=11)
+    hist.set_xlabel(
+        f'{feature.capitalize()} ({UNITS[feature]})', labelpad=10, fontsize=11
+    )
     hist.set_ylabel("Frequency", labelpad=10, fontsize=11)
     hist.xaxis.set_major_formatter(ticker.FuncFormatter(format_ticks))
     hist.yaxis.set_major_formatter(ticker.FuncFormatter(format_ticks))
     hist.tick_params(labelsize=10)
+
+    return skew(data), kurtosis(data)
 
 
 def plot_boxplot(feature, data, ax):
@@ -109,7 +133,9 @@ def plot_boxplot(feature, data, ax):
     # Format
     box.set_title(f"Boxplot: {feature.capitalize()} Distribution", fontsize=12)
     box.set_xlabel("")
-    box.set_ylabel(feature.capitalize(), labelpad=10, fontsize=11)
+    box.set_ylabel(
+        f'{feature.capitalize()} ({UNITS[feature]})', labelpad=10, fontsize=11
+    )
     box.yaxis.set_major_formatter(ticker.FuncFormatter(format_ticks))
     box.tick_params(labelsize=10)
 
@@ -147,26 +173,42 @@ def plot_boxplot(feature, data, ax):
     )
 
 
-def plot_class_distribution(df, class_name):
+def interpret_skew(x):
+    if x < -0.5:
+        return 'Left skew'
+    elif -0.5 <= x <= 0.5:
+        return 'Symmetric'
+    else:
+        return 'Right skew'
+
+
+def interpret_kurt(x):
+    if x < -0.5:
+        return 'Platykurtic'
+    elif -0.5 <= x <= 0.5:
+        return 'Mesokurtic'
+    else:
+        return 'Leptokurtic'
+
+
+def plot_class_distribution(class_name, class_data):
     sns.set()
     fig, axes = plt.subplots(nrows=1, ncols=2, figsize=(10, 6))
     fig.subplots_adjust(
-        left=0.1, right=0.975, top=0.925, bottom=0.12, wspace=0.35
+        left=0.125, right=0.975, top=0.925, bottom=0.12, wspace=0.35
     )
-    bins = len(np.histogram_bin_edges(df[class_name], bins="fd")) - 1
-    plot_histogram(class_name, df[class_name], axes[0], bins)
-    plot_boxplot(class_name, df[class_name], axes[1])
+    skew, kurt = plot_histogram(class_name, class_data, axes[0])
+    plot_boxplot(class_name, class_data, axes[1])
     plt.savefig('../Reports/plots/part1_class_distribution.png')
+    print('Class Distribution')
+    print(f'Skewness value:\t{skew:.2f}\tshape:\t{interpret_skew(skew)}')
+    print(f'Kurtosis value:\t{kurt:.2f}\tshape:\t{interpret_kurt(kurt)}\n')
 
 
 # Numerical feature distributions
-def plot_numerical_distributions(df, class_name):
-    selected_features = df.select_dtypes(include=['number']).columns
-    num_selected_features = (
-        len(selected_features)
-        if class_name not in selected_features
-        else len(selected_features) - 1
-    )
+def plot_numerical_distributions(data):
+    selected_features = data.select_dtypes(include=['number']).columns
+    num_selected_features = len(selected_features)
     num_cols = 3 if num_selected_features >= 9 else 2
     num_rows = math.ceil(num_selected_features / num_cols)
 
@@ -183,48 +225,49 @@ def plot_numerical_distributions(df, class_name):
 
     distributions_results = {}
     for count, feature in enumerate(selected_features):
-        bins = len(np.histogram_bin_edges(df[feature], bins="doane")) - 1
-        if feature != class_name:
-            plot_histogram(feature, df[feature], flat_axes[count], bins)
-        else:
-            count -= 1
+        skew, kurt = plot_histogram(feature, data[feature], flat_axes[count])
 
         distributions_results[feature] = {
-            'bins': bins,
-            'skewness': skew(df[feature]),
-            'kurtosis': kurtosis(df[feature]),
+            'skewness value': skew,
+            'kurtosis value': kurt,
         }
 
     for i in range(count + 1, num_rows * num_cols):
         flat_axes[i].axis('off')
+
     plt.savefig('../Reports/plots/part1_numerical_distributions.png')
+
     return pd.DataFrame.from_dict(distributions_results, orient='index')
 
 
-def display_numerical_distributions(df, class_name):
-    distributions = plot_numerical_distributions(df, class_name)
-    distributions['skewness shape'] = distributions['skewness'].apply(
-        lambda x: 'Left skew'
-        if x < -0.5
-        else ('Symmetric' if -0.5 <= x <= 0.5 else 'Right skew')
+def display_numerical_distributions(data):
+    distributions = plot_numerical_distributions(data)
+    distributions['skewness shape'] = distributions['skewness value'].apply(
+        interpret_skew
     )
-    distributions['kurtosis shape'] = distributions['kurtosis'].apply(
-        lambda x: 'Platykurtic'
-        if x < -0.5
-        else ('Mesokurtic' if -0.5 <= x <= 0.5 else 'Leptokurtic')
+    distributions['kurtosis shape'] = distributions['kurtosis value'].apply(
+        interpret_kurt
     )
-    distributions[['skewness', 'kurtosis']] = distributions[
-        ['skewness', 'kurtosis']
+    distributions[['skewness value', 'kurtosis value']] = distributions[
+        ['skewness value', 'kurtosis value']
     ].map(lambda x: f'{x:,.2f}')
+    distributions = distributions[
+        [
+            'skewness value',
+            'skewness shape',
+            'kurtosis value',
+            'kurtosis shape',
+        ]
+    ]
     display_table(
-        'Numerical Distributions: Bins, Skewness and Kurtosis',
+        'Numerical Distributions',
         distributions,
     )
 
 
-def analyse(df):
-    display_stats(df)
-    class_name = df.columns[-1]
-    display_summary(df, class_name)
-    plot_class_distribution(df, class_name)
-    display_numerical_distributions(df, class_name)
+def analyse(data):
+    display_stats(data)
+    class_name = data.columns[-1]
+    display_summary(class_name, data)
+    plot_class_distribution(class_name, data[class_name])
+    display_numerical_distributions(data.drop(columns=[class_name]))
