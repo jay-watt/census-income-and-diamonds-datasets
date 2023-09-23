@@ -43,6 +43,7 @@ def assess_model(name, model, results, X_train, X_test, y_train, y_test):
 
 
 def model(class_name):
+    print('Modelling...')
     X_train, y_train = load_cleaned_data(class_name, 'train')
     X_test, y_test = load_cleaned_data(class_name, 'test')
 
@@ -51,5 +52,6 @@ def model(class_name):
         results = assess_model(
             name, model, results, X_train, X_test, y_train, y_test
         )
-    results_df = pd.DatFrame(results)
+    results_df = pd.DataFrame(results)
     display_table('Model Results', results_df)
+    print('\nModelling complete!')

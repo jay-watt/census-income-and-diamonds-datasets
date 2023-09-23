@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-from config import KURT_THRESHOLD, ORDINAL_MAPPINGS, PLOTS_PATH, SKEW_THRESHOLD
+from config import KURT_THRESHOLD, ORDINAL_MAPPINGS, PLOTS_DIR, SKEW_THRESHOLD
 from scipy.stats import boxcox, kurtosis, skew
 from sklearn.preprocessing import StandardScaler
 from utils import (
@@ -22,6 +22,7 @@ class Preprocessor:
 
     def encode(self):
         self.data.replace(ORDINAL_MAPPINGS, inplace=True)
+        print('Features encoded: cut, color, clarity\n')
         return self.data
 
     def find_abnormal_features(self):
@@ -48,16 +49,12 @@ class Preprocessor:
             self.data[feature], _ = boxcox(self.data[feature] + 0.01)
         return self.data
 
-    def remove_outliers(self, abnormal_features):
+    def remove_outliers(self):
         rows_before_removal = self.data.shape[0]
-        self.data = self.data[
-            self.data[abnormal_features]
-            .apply(self.filter_outliers, axis=0)
-            .all(1)
-        ]
+        features_data = self.data.drop(columns=[self.class_name])
+        mask = features_data.apply(self.filter_outliers).all(axis=1)
+        self.data = self.data[mask]
         rows_removed = rows_before_removal - self.data.shape[0]
-        features_str = ', '.join(abnormal_features)
-        print(f"Abnormal features inspected: {features_str}")
         print(f"Rows removed using modified IQR method: {rows_removed:,.0f}\n")
         return self.data
 
@@ -71,26 +68,20 @@ class Preprocessor:
         return feature.between(lower_bound, upper_bound)
 
     def transform_correlated_features(self):
-        print('Transforming highly correlated features: x, y, z, carat\n')
-        transformed_data = self.data.copy()
-        transformed_data['volume'] = (
-            transformed_data['x']
-            * transformed_data['y']
-            * transformed_data['z']
-        )
-        transformed_data['carat_to_volume'] = (
-            transformed_data['carat'] / transformed_data['volume']
-        )
-        self.data = transformed_data
+        data = self.data.copy()
+        data['volume'] = data['x'] * data['y'] * data['z']
+        self.data = data
+        print('Highly correlated features transformed: x, y, z\n')
         return self.data
 
     def remove_redundant_features(self):
         cleaned_data = self.data.copy()
         cleaned_data.drop(
-            columns=['depth', 'x', 'y', 'z', 'carat', 'carat_to_volume'],
+            columns=['x', 'y', 'z', 'depth', 'carat'],
             inplace=True,
         )
         self.data = cleaned_data
+        print('Features removed: x, y, z, carat, depth\n')
         return self.data
 
     def scale(self):
@@ -110,6 +101,7 @@ class Preprocessor:
             ],
             axis=1,
         )
+        print('Scaler chosen: sklearn.preprocessing.StandardScaler\n')
         return self.data
 
 
@@ -131,7 +123,7 @@ class EDA:
                 'kurtosis value': kurt,
             }
 
-        plt.savefig(f'{PLOTS_PATH}/part1_distributions_{process_str}.png')
+        plt.savefig(f'{PLOTS_DIR}/part1_distributions_{process_str}.png')
         return pd.DataFrame.from_dict(distributions_results, orient='index')
 
     def display_distributions(self, process_str, features):
@@ -159,7 +151,7 @@ class EDA:
         axes = create_subplot_layout(len(features))
         for count, feature in enumerate(features):
             plot_scatterplot(feature, self.class_name, self.data, axes[count])
-        plt.savefig(f'{PLOTS_PATH}/part1_scatter_{process_str}.png')
+        plt.savefig(f'{PLOTS_DIR}/part1_scatter_{process_str}.png')
 
     @staticmethod
     def correlation_pairs(corr_matrix):
@@ -234,35 +226,50 @@ def preprocess_and_eda(class_name, data, data_name):
     print("***Encoding categorical features")
     eda.data = preprocessor.encode()
 
-    eda.broadly_analyse('before_preprocessing')
+    if data_name == 'train':
+        eda.broadly_analyse('before_preprocessing')
 
     print("***Transforming abnormal features")
-    abnormal_features = preprocessor.find_abnormal_features()
-    eda.display_distributions('before_transform', abnormal_features)
+    if data_name == 'train':
+        abnormal_features = preprocessor.find_abnormal_features()
+        eda.display_distributions('before_transform', abnormal_features)
     eda.data = preprocessor.transform_abnormal_features()
-    eda.display_distributions('after_transform', abnormal_features)
+    if data_name == 'train':
+        eda.display_distributions('after_transform', abnormal_features)
 
     print("***Removing outliers")
-    abnormal_features = preprocessor.find_abnormal_features()
-    eda.plot_scatterplots('before_outlier_removal', abnormal_features)
-    eda.data = preprocessor.remove_outliers(abnormal_features)
-    eda.plot_scatterplots('after_outlier_removal', abnormal_features)
+    if data_name == 'train':
+        eda.plot_scatterplots(
+            'before_outlier_removal', eda.data.drop(columns=class_name).columns
+        )
+    eda.data = preprocessor.remove_outliers()
+    if data_name == 'train':
+        eda.plot_scatterplots(
+            'after_outlier_removal',
+            eda.data.drop(columns=eda.class_name).columns,
+        )
 
     print("***Transforming highly correlated features")
-    eda.analyse_correlations('before_transform')
+    if data_name == 'train':
+        eda.analyse_correlations('before_transform')
     eda.data = preprocessor.transform_correlated_features()
-    eda.analyse_correlations('after_transform')
+    if data_name == 'train':
+        eda.analyse_correlations('after_transform')
 
     print("***Removing redundant features")
     eda.data = preprocessor.remove_redundant_features()
-    eda.analyse_correlations('after_feature_removal')
+    if data_name == 'train':
+        eda.analyse_correlations('after_feature_removal')
 
     print("***Scaling")
     eda.data = preprocessor.scale()
 
-    eda.broadly_analyse('after_preprocessing')
+    if data_name == 'train':
+        eda.broadly_analyse('after_preprocessing')
 
-    print("***Writing cleaned data")
     write_cleaned_data(preprocessor.data, data_name)
 
-    print("\nPreprocessing and EDA completed successfully!\n")
+    if data_name == 'train':
+        print("Preprocessing and EDA complete!\n")
+    else:
+        print("Preprocessing complete!\n")

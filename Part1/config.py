@@ -63,6 +63,9 @@ MODELS = [
     ),
     ('SGD Regression', SGDRegressor(random_state=SEED)),
     ('Support Vector Regression', SVR()),
-    ('Linear SVR', LinearSVR(random_state=SEED)),
-    ('Multi-layer Perceptron Regression', MLPRegressor(random_state=SEED)),
+    ('Linear SVR', LinearSVR(random_state=SEED, max_iter=50000)),
+    (
+        'Multi-layer Perceptron Regression',
+        MLPRegressor(random_state=SEED, max_iter=1000),
+    ),
 ]

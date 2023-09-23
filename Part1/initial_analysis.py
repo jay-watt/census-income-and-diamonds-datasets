@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-from config import PLOTS_PATH
+from config import PLOTS_DIR
 from utils import (
     create_subplot_layout,
     display_table,
@@ -67,7 +67,7 @@ def plot_class_distribution(class_name, class_data):
     skew, kurt = plot_histogram(class_name, class_data, axes[0])
     plot_boxplot(class_name, class_data, axes[1])
 
-    plt.savefig(f'{PLOTS_PATH}/part1_class_distribution.png')
+    plt.savefig(f'{PLOTS_DIR}/part1_class_distribution.png')
 
     print('Class Distribution')
     print(f'Skewness value:\t{skew:.2f}\tshape:\t{interpret_skew(skew)}')
@@ -75,8 +75,10 @@ def plot_class_distribution(class_name, class_data):
 
 
 def analyse(data):
+    print('Initially analysing data...\n')
     display_stats(data)
     class_name = data.columns[-1]
     display_summary(class_name, data)
     plot_class_distribution(class_name, data[class_name])
+    print('Initial analysis complete!\n')
     return class_name
