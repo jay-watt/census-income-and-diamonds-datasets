@@ -1,4 +1,13 @@
-DATA_PATH = '/home/j/machine-learning/a4/Part1/data/original/diamonds.csv'
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+from sklearn.linear_model import LinearRegression, Ridge, SGDRegressor
+from sklearn.neighbors import KNeighborsRegressor
+from sklearn.neural_network import MLPRegressor
+from sklearn.svm import SVR, LinearSVR
+from sklearn.tree import DecisionTreeRegressor
+
+DATA_DIR = '/home/j/machine-learning/a4/Part1/data/'
+ORIGINAL_DATA = 'original/diamonds.csv'
+CLEANED_DATA = {'train': 'cleaned/train.csv', 'test': 'cleaned/train.csv'}
 SEED = 309
 
 # Plots
@@ -12,12 +21,13 @@ UNITS = {
     'z': 'mm',
     'volume': 'mm3',
 }
-PLOTS_PATH = '../Reports/plots'
+PLOTS_DIR = '../Reports/plots'
 
 # Distribution
 SKEW_THRESHOLD = 1
 KURT_THRESHOLD = 5
 
+# Preprocessing
 ORDINAL_MAPPINGS = {
     'cut': {
         'Fair': 1,
@@ -38,3 +48,21 @@ ORDINAL_MAPPINGS = {
         'IF': 8,
     },
 }
+CORRELATION_THRESHOLD = 0.5
+
+# Modelling
+MODELS = [
+    ('Linear Regression', LinearRegression()),
+    ('K-Neighbors Regression', KNeighborsRegressor()),
+    ('Ridge Regression', Ridge(random_state=SEED)),
+    ('Decision Tree Regression', DecisionTreeRegressor(random_state=SEED)),
+    ('Random Forest Regression', RandomForestRegressor(random_state=SEED)),
+    (
+        'Gradient Boosting Regression',
+        GradientBoostingRegressor(random_state=SEED),
+    ),
+    ('SGD Regression', SGDRegressor(random_state=SEED)),
+    ('Support Vector Regression', SVR()),
+    ('Linear SVR', LinearSVR(random_state=SEED)),
+    ('Multi-layer Perceptron Regression', MLPRegressor(random_state=SEED)),
+]

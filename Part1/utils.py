@@ -7,9 +7,11 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 from config import (
-    DATA_PATH,
+    CLEANED_DATA,
+    DATA_DIR,
     KURT_THRESHOLD,
-    PLOTS_PATH,
+    ORIGINAL_DATA,
+    PLOTS_DIR,
     SEED,
     SKEW_THRESHOLD,
     UNITS,
@@ -27,8 +29,8 @@ sns.set_theme(style="darkgrid", palette="deep")
 
 
 # Data handlers
-def load_data():
-    return pd.read_csv(DATA_PATH, index_col=0)
+def load_original_data():
+    return pd.read_csv(os.path.join(DATA_DIR, ORIGINAL_DATA), index_col=0)
 
 
 def split_data(class_name, data):
@@ -46,9 +48,12 @@ def split_data(class_name, data):
 def write_cleaned_data(data, data_name):
     data.reset_index(drop=True, inplace=True)
     data.index = data.index + 1
-    data.to_csv(
-        os.path.join('data', 'cleaned', f'{data_name}.csv'), index=True
-    )
+    data.to_csv(os.path.join(DATA_DIR, CLEANED_DATA[data_name]), index=True)
+
+
+def load_cleaned_data(class_name, data_name):
+    data = pd.read_csv(os.path.join(DATA_DIR, CLEANED_DATA[data_name]))
+    return data.drop(columns=class_name), data[class_name]
 
 
 # Textual table creator
@@ -140,7 +145,7 @@ def plot_barplot(data):
 
     plt.tight_layout()
 
-    plt.savefig(os.path.join(PLOTS_PATH, 'part1_class_correlations.png'))
+    plt.savefig(os.path.join(PLOTS_DIR, 'part1_class_correlations.png'))
 
 
 def plot_boxplot(feature, data, ax):

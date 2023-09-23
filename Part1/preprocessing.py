@@ -263,6 +263,6 @@ def preprocess_and_eda(class_name, data, data_name):
     eda.broadly_analyse('after_preprocessing')
 
     print("***Writing cleaned data")
-    write_cleaned_data(eda.data, data_name)
+    write_cleaned_data(preprocessor.data, data_name)
 
     print("\nPreprocessing and EDA completed successfully!\n")
