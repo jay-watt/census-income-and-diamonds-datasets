@@ -1,14 +1,5 @@
-import matplotlib.pyplot as plt
 import pandas as pd
-from config import PLOTS_DIR
-from utils import (
-    create_subplot_layout,
-    display_table,
-    interpret_kurt,
-    interpret_skew,
-    plot_boxplot,
-    plot_histogram,
-)
+from common.utils import display_table
 
 
 def get_stats_by_dtype(data, dtype):
@@ -37,6 +28,7 @@ def display_stats(data):
     categorical_stats = get_stats_by_dtype(data, 'object')
     format_categorical_stats(categorical_stats)
     display_table('Categorical Summary Statistics', categorical_stats)
+    return data.columns[-1]
 
 
 def get_feature_types(data, class_name):
@@ -61,24 +53,7 @@ def display_summary(class_name, data):
     display_table('Dataset Summary: Features and Instances', summary)
 
 
-def plot_class_distribution(class_name, class_data):
-    axes = create_subplot_layout(2)
-
-    skew, kurt = plot_histogram(class_name, class_data, axes[0])
-    plot_boxplot(class_name, class_data, axes[1])
-
-    plt.savefig(f'{PLOTS_DIR}/part1_class_distribution.png')
-
-    print('Class Distribution')
-    print(f'Skewness value:\t{skew:.2f}\tshape:\t{interpret_skew(skew)}')
-    print(f'Kurtosis value:\t{kurt:.2f}\tshape:\t{interpret_kurt(kurt)}\n')
-
-
-def analyse(data):
-    print('Initially analysing data...\n')
-    display_stats(data)
-    class_name = data.columns[-1]
+def summarise(data):
+    class_name = display_stats(data)
     display_summary(class_name, data)
-    plot_class_distribution(class_name, data[class_name])
-    print('Initial analysis complete!\n')
     return class_name
