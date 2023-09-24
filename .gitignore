@@ -1,3 +1,7 @@
 .vscode/
-Reports/
+plots/
 source-code/
+part1/__pycache__
+part2/__pycache__
+common/__pycache__
+data/
