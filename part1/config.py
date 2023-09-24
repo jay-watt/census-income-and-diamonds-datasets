@@ -1,4 +1,5 @@
 DATA_FILENAME = 'diamonds'
+PLOTS_FILENAME = 'part1'
 
 MAPPINGS = {
     'cut': {

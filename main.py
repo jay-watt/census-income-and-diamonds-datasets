@@ -1,8 +1,8 @@
 import os
 import sys
 
-from part1.run import run_part1
-from part2.run import run_part2
+from part1.main import run_part1
+from part2.main import run_part2
 
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 

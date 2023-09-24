@@ -1,5 +1,6 @@
 DATA_DIR = '/home/j/machine-learning/a4/Part2/data/original'
 DATA_FILENAMES = {'train': 'adult.data', 'test': 'adult.test'}
+PLOTS_FILENAME = 'part2'
 COLUMN_NAMES = [
     'age',
     'workclass',
@@ -56,5 +57,3 @@ MAPPINGS = {
     },
     'sex': {'Male': 0, 'Female': 1},
 }
-
-CHI2_THRESHOLD = 100

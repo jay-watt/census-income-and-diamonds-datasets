@@ -1,9 +1,24 @@
-import matplotlib.pyplot as plt
 import pandas as pd
-from common.config import PLOTS_DIR
-from common.preprocessing import EDA, Preprocessor
-from common.utils import display_table, plot_barplot, write_cleaned_data
+from sklearn.model_selection import train_test_split
+
+from common.config import SEED
+from common.preprocessing import Preprocessor
+from part1.analysis import load_original_data
 from part1.config import DATA_FILENAME, MAPPINGS
+
+
+def split_data():
+    data = load_original_data()
+    class_ = data.columns[-1]
+    train_X, test_X, train_y, test_y = train_test_split(
+        data.drop(columns=class_),
+        data[class_],
+        test_size=0.3,
+        random_state=SEED,
+    )
+    train = pd.concat([train_X, train_y], axis=1)
+    test = pd.concat([test_X, test_y], axis=1)
+    return train, test, class_
 
 
 class Part1Preprocessor(Preprocessor):
@@ -26,68 +41,18 @@ class Part1Preprocessor(Preprocessor):
         )
         return self.reassign_processed_data(transformed_data, results_str)
 
-
-class Part1EDA(EDA):
-    def display_influence(self, process_str):
-        feature_data = self.data.drop(columns=self.class_name)
-        pearson = feature_data.corrwith(self.data[self.class_name])
-
-        plot_barplot(pearson)
-        plt.savefig(f'{PLOTS_DIR}/{self.part_str}_class_correlations.png')
-
-        pearson = pearson.abs().sort_values(ascending=False)
-        pearson = pd.DataFrame(
-            {
-                'feature': pearson.index,
-                'pearson coefficient': pearson.values,
-            }
-        )
-        pearson['pearson coefficient'] = pearson['pearson coefficient'].apply(
-            '{:.2f}'.format
-        )
-        pearson.index = pearson.index + 1
-        display_table('Feature Correlations with Class', pearson)
-
-    def analyse_correlations(self, process_str):
-        if self.data_name == 'train':
-            self.display_correlations(process_str)
-            self.display_influence(process_str)
+    def preprocess(self):
+        self.map_ordinal_features(MAPPINGS)
+        self.remove_outliers()
+        self.transform_correlated_features()
+        self.scale()
+        self.write_cleaned_data(f'{DATA_FILENAME}_{self.data_name}')
 
 
-def preprocess_and_eda(class_name, data, data_name, part_str):
-    preprocessor = Part1Preprocessor(class_name, data)
-    eda = Part1EDA(class_name, data, data_name, part_str)
-
-    print(f"Preprocessing {data_name} data...\n")
-    eda.data = preprocessor.impute()
-    eda.data = preprocessor.map_ordinal_features(MAPPINGS)
-    eda.broadly_analyse('before_preprocessing')
-
-    abnormal_features = preprocessor.find_abnormal_features()
-    eda.display_distributions('before_transform', abnormal_features)
-    eda.data = preprocessor.transform_abnormal_features()
-    eda.display_distributions('after_transform', abnormal_features)
-
-    eda.plot_scatterplots(
-        'before_outlier_removal', eda.data.drop(columns=class_name).columns
-    )
-    eda.data = preprocessor.remove_outliers()
-    eda.plot_scatterplots(
-        'after_outlier_removal',
-        eda.data.drop(columns=eda.class_name).columns,
-    )
-
-    eda.analyse_correlations('before_transform')
-    eda.data = preprocessor.transform_correlated_features()
-    eda.analyse_correlations('after_transform')
-
-    eda.data = preprocessor.scale()
-
-    eda.broadly_analyse('after_preprocessing')
-
-    write_cleaned_data(preprocessor.data, f'{DATA_FILENAME}_{data_name}')
-
-    if data_name == 'train':
-        print("Preprocessing and EDA complete!\n")
-    else:
-        print("Preprocessing complete!\n")
+def run_preprocessing():
+    print('Prepare for preprocessing...')
+    train, test, class_ = split_data()
+    train_preprocessor = Part1Preprocessor(class_, train, 'train')
+    train_preprocessor.preprocess()
+    test_preprocessor = Part1Preprocessor(class_, test, 'test')
+    test_preprocessor.preprocess()
