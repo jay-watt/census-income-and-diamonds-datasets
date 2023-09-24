@@ -19,8 +19,8 @@ def format_categorical_stats(stats):
 
 def display_stats(data):
     numerical_stats = get_stats_by_dtype(data, 'number')
-    numerical_stats['variance'] = numerical_stats.var()
-    numerical_stats['range'] = numerical_stats.max() - numerical_stats.min()
+    numerical_stats['variance'] = numerical_stats['std'] ** 2
+    numerical_stats['range'] = numerical_stats['max'] - numerical_stats['min']
     numerical_stats.drop(columns=['25%', '50%', '75%'], inplace=True)
     format_numerical_stats(numerical_stats)
     display_table('Numerical Summary Statistics', numerical_stats)
@@ -50,10 +50,23 @@ def display_summary(class_name, data):
         'Numerical': len(numerical),
     }
     summary = pd.DataFrame(summary, index=['count']).T
+    summary.index.name = 'attribute'
     display_table('Dataset Summary: Features and Instances', summary)
+
+
+def display_missing_values(data):
+    missing = data.isnull().sum()
+    missing = pd.DataFrame(missing[missing > 0])
+    missing.columns = ['count']
+    missing['percentage'] = (missing['count'] * 100 / len(data)).map(
+        lambda x: f'{x:.2f}'
+    )
+    missing['count'] = missing['count'].apply(lambda x: f'{x:,.0f}')
+    display_table('Missing Values Summary by Feature', missing)
 
 
 def summarise(data):
     class_name = display_stats(data)
     display_summary(class_name, data)
+    display_missing_values(data)
     return class_name

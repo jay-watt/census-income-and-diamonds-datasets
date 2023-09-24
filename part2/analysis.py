@@ -1,20 +1,25 @@
-import matplotlib.pyplot as plt
+import pandas as pd
 from common.analysis import summarise
-from common.config import PLOTS_DIR
-from common.utils import create_subplot_layout, plot_boxplot
+from common.utils import display_table
 
 
-def plot_class_distribution(class_name, class_data):
-    axes = create_subplot_layout(2)
-
-    # skew, kurt = plot_histogram(class_name, class_data, axes[0])
-    plot_boxplot(class_name, class_data, axes[1])
-
-    plt.savefig(f'{PLOTS_DIR}/part1_class_distribution.png')
+def display_class_distribution(class_name, class_data):
+    class_counts = class_data.value_counts()
+    class_percentage = class_data.value_counts(normalize=True) * 100
+    distribution = pd.DataFrame(
+        {'count': class_counts, 'percentage': class_percentage}
+    )
+    distribution['percentage'] = distribution['percentage'].apply(
+        lambda x: f'{x:.2f}'
+    )
+    distribution['count'] = distribution['count'].apply(lambda x: f'{x:,.0f}')
+    distribution.index.name = class_name.capitalize()
+    display_table('Class Distribution', distribution)
 
 
 def analyse(data):
     print('Initially analysing data...\n')
     class_name = summarise(data)
-    plot_class_distribution(class_name, data[class_name])
+    display_class_distribution(class_name, data[class_name])
     print('Initial analysis complete!\n')
+    return class_name

@@ -3,43 +3,35 @@ import pandas as pd
 from common.config import PLOTS_DIR
 from common.preprocessing import EDA, Preprocessor
 from common.utils import display_table, plot_barplot, write_cleaned_data
-from part1.config import DATA_FILENAME
+from part1.config import DATA_FILENAME, MAPPINGS
 
 
 class Part1Preprocessor(Preprocessor):
     def transform_correlated_features(self):
-        print("***Transforming highly correlated features")
+        print("***Transforming and removing highly correlated features")
         transformed_data = self.data.copy()
+        selected_features = ['x', 'y', 'z']
 
         transformed_data['volume'] = (
             transformed_data['x']
             * transformed_data['y']
             * transformed_data['z']
         )
+        transformed_data.drop(columns=selected_features, inplace=True)
+        transformed_data.drop(columns=['carat'], inplace=True)
 
-        return self.reassign_and_return(
-            transformed_data,
-            'Highly correlated features transformed: x, y, z into volume',
+        print('Correlated feature removed: carat')
+        results_str = (
+            f'Correlated features transformed: {", ".join(selected_features)}'
         )
-
-    def remove_redundant_features(self):
-        print("***Removing redundant features")
-        cleaned_data = self.data.copy()
-
-        cleaned_data.drop(
-            columns=['x', 'y', 'z', 'depth', 'carat'],
-            inplace=True,
-        )
-
-        return self.reassign_and_return(
-            cleaned_data, 'Redundant features removed: x, y, z, carat, depth'
-        )
+        return self.reassign_processed_data(transformed_data, results_str)
 
 
 class Part1EDA(EDA):
     def display_influence(self, process_str):
         feature_data = self.data.drop(columns=self.class_name)
         pearson = feature_data.corrwith(self.data[self.class_name])
+
         plot_barplot(pearson)
         plt.savefig(f'{PLOTS_DIR}/{self.part_str}_class_correlations.png')
 
@@ -54,9 +46,7 @@ class Part1EDA(EDA):
             '{:.2f}'.format
         )
         pearson.index = pearson.index + 1
-        display_table(
-            f'Feature Correlations with Class {process_str}', pearson
-        )
+        display_table('Feature Correlations with Class', pearson)
 
     def analyse_correlations(self, process_str):
         if self.data_name == 'train':
@@ -69,7 +59,8 @@ def preprocess_and_eda(class_name, data, data_name, part_str):
     eda = Part1EDA(class_name, data, data_name, part_str)
 
     print(f"Preprocessing {data_name} data...\n")
-    eda.data = preprocessor.encode()
+    eda.data = preprocessor.impute()
+    eda.data = preprocessor.map_ordinal_features(MAPPINGS)
     eda.broadly_analyse('before_preprocessing')
 
     abnormal_features = preprocessor.find_abnormal_features()
@@ -90,14 +81,11 @@ def preprocess_and_eda(class_name, data, data_name, part_str):
     eda.data = preprocessor.transform_correlated_features()
     eda.analyse_correlations('after_transform')
 
-    eda.data = preprocessor.remove_redundant_features()
-    eda.analyse_correlations('after_feature_removal')
-
     eda.data = preprocessor.scale()
 
     eda.broadly_analyse('after_preprocessing')
 
-    write_cleaned_data(preprocessor.data, DATA_FILENAME, data_name)
+    write_cleaned_data(preprocessor.data, f'{DATA_FILENAME}_{data_name}')
 
     if data_name == 'train':
         print("Preprocessing and EDA complete!\n")

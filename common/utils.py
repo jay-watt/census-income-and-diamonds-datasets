@@ -15,28 +15,28 @@ sns.set_theme(style="darkgrid", palette="deep")
 
 
 # Handling data
-def write_cleaned_data(data, filename, data_name):
+def write_cleaned_data(data, filename):
     data.reset_index(drop=True, inplace=True)
     data.index = data.index + 1
-    data.to_csv(f'{CLEANED_DATA_DIR}/{filename}_{data_name}.csv', index=True)
+    data.to_csv(f'{CLEANED_DATA_DIR}/{filename}.csv', index=True)
 
 
-def load_cleaned_data(class_name, filename, data_name):
-    df = pd.read_csv(
-        f'{CLEANED_DATA_DIR}/{filename}_{data_name}.csv', index_col=0
-    )
+def load_cleaned_data(class_name, filename):
+    df = pd.read_csv(f'{CLEANED_DATA_DIR}/{filename}.csv', index_col=0)
     return df.drop(columns=class_name), df[class_name]
 
 
 # Textual table creator
 def display_table(title, data):
     print(f'{title}')
+    index_name = data.index.name.capitalize() if data.index.name else 'Feature'
     print(
         tabulate(
             data,
-            headers=[header.capitalize() for header in data.keys()],
+            headers=[index_name]
+            + [header.capitalize() for header in data.columns],
             tablefmt='fancy_grid',
-            showindex=True,
+            showindex='always',
         )
     )
     print()

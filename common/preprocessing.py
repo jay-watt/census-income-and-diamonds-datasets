@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 from common.config import (
+    CORR_THRESHOLD,
     KURT_THRESHOLD,
-    ORDINAL_MAPPINGS,
     PLOTS_DIR,
     SKEW_THRESHOLD,
 )
@@ -23,28 +24,42 @@ class Preprocessor:
         self.class_name = class_name
         self.data = data
 
-    def reassign_and_return(self, processed_data, results_str):
+    def reassign_processed_data(self, processed_data, results_str):
         self.data = processed_data
         print(results_str, '\n')
         return processed_data
 
-    def encode(self):
-        print("***Encoding categorical features")
-        encoded_data = self.data.copy()
-        features_to_encode = self.data.columns.intersection(
-            ORDINAL_MAPPINGS.keys()
+    def impute(self):
+        print("***Imputing missing values")
+        imputed_data = self.data.copy()
+
+        imputed_features = []
+        for feature in imputed_data.columns:
+            if imputed_data[feature].isna().any():
+                if np.issubdtype(imputed_data[feature].dtype, np.number):
+                    imputed_data[feature].fillna(
+                        imputed_data[feature].mean(), inplace=True
+                    )
+                else:
+                    mode_val = imputed_data[feature].mode().iloc[0]
+                    imputed_data[feature].fillna(mode_val, inplace=True)
+                imputed_features.append(feature)
+
+        results_str = f'Features imputed: {", ".join(imputed_features)}'
+        return self.reassign_processed_data(imputed_data, results_str)
+
+    def map_ordinal_features(self, mappings):
+        print("***Mapping ordinal and binary categorical features")
+        mapped_data = self.data.copy()
+        selected_features = list(mappings.keys())
+
+        mapped_data.replace(mappings, inplace=True)
+        mapped_data[selected_features] = mapped_data[selected_features].astype(
+            int
         )
 
-        encoded_data.replace(
-            {
-                feature: ORDINAL_MAPPINGS[feature]
-                for feature in features_to_encode
-            },
-            inplace=True,
-        )
-
-        results_str = f'Features encoded: {", ".join(features_to_encode)}'
-        return self.reassign_and_return(encoded_data, results_str)
+        results_str = f'Features mapped: {", ".join(selected_features)}'
+        return self.reassign_processed_data(mapped_data, results_str)
 
     def find_abnormal_features(self):
         skewed_features = self.data.drop(columns=self.class_name).apply(
@@ -74,7 +89,7 @@ class Preprocessor:
         results_str = (
             f'Features transformed: {", ".join(features_to_transform)}'
         )
-        return self.reassign_and_return(transformed_data, results_str)
+        return self.reassign_processed_data(transformed_data, results_str)
 
     @staticmethod
     def filter_outliers(feature):
@@ -95,7 +110,26 @@ class Preprocessor:
 
         rows_removed = self.data.shape[0] - cleaned_data.shape[0]
         results_str = f'Outlier instances removed: {rows_removed:,.0f}'
-        return self.reassign_and_return(cleaned_data, results_str)
+        return self.reassign_processed_data(cleaned_data, results_str)
+
+    def remove_redundant_features(self, selected_features):
+        print("***Removing redundant features")
+        cleaned_data = self.data.copy()
+        features_to_remove = [
+            feature
+            for feature in selected_features
+            if feature in cleaned_data.columns
+        ]
+
+        cleaned_data.drop(
+            columns=features_to_remove,
+            inplace=True,
+        )
+
+        results_str = (
+            f'Redundant features removed: {", ".join(features_to_remove)}'
+        )
+        return self.reassign_processed_data(cleaned_data, results_str)
 
     def scale(self):
         print("***Scaling")
@@ -117,8 +151,11 @@ class Preprocessor:
             ],
             axis=1,
         )
-        return self.reassign_and_return(
-            scaled_data, f'Scaler chosen: {scaler.__class__}'
+        print(
+            f'Final features selected: {", ".join(list(scaled_data.columns))}'
+        )
+        return self.reassign_processed_data(
+            scaled_data, 'Scaler used: StandardScaler'
         )
 
 
@@ -190,7 +227,8 @@ class EDA:
             for j, feature2 in enumerate(
                 corr_matrix.columns[i + 1 :], start=i + 1
             )
-            if abs(correlation_value := corr_matrix.iloc[i, j]) > 0.5
+            if abs(correlation_value := corr_matrix.iloc[i, j])
+            > CORR_THRESHOLD
         ]
         corr_pairs_df = pd.DataFrame(
             corr_pairs, columns=['feature 1', 'feature 2', 'correlation']
@@ -209,10 +247,10 @@ class EDA:
     def display_correlations(self, process_str):
         corr_matrix = self.data.drop(columns=self.class_name).corr()
         corr_pairs = self.correlation_pairs(corr_matrix)
-        display_table(
-            f'Highly Correlated Feature Pairs (> 0.5) {process_str}',
-            corr_pairs,
-        )
+        if len(corr_pairs) > 0:
+            corr_pairs.index.name = 'ranking'
+            title = f'Correlated Feature Pairs (> {CORR_THRESHOLD})'
+            display_table(title, corr_pairs)
 
     def broadly_analyse(self, process_str):
         if self.data_name == 'train':

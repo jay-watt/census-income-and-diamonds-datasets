@@ -72,8 +72,8 @@ def assess_model(name, model, results, X_train, X_test, y_train, y_test):
 
 def model(class_name):
     print('Modelling...')
-    X_train, y_train = load_cleaned_data(class_name, DATA_FILENAME, 'train')
-    X_test, y_test = load_cleaned_data(class_name, DATA_FILENAME, 'test')
+    X_train, y_train = load_cleaned_data(class_name, f'{DATA_FILENAME}_train')
+    X_test, y_test = load_cleaned_data(class_name, f'{DATA_FILENAME}_test')
 
     results = []
     for name, model in initialise_models():
