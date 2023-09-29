@@ -1,7 +1,4 @@
-.vscode/
-Plots/
-source-code/
+
 Part1/__pycache__
 Part2/__pycache__
-Common/__pycache__
-Data/
+Part1_2_Common/__pycache__

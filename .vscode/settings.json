@@ -1,0 +1,11 @@
+{
+	"editor.codeActionsOnSave": {},
+	"python.analysis.typeCheckingMode": "basic",
+	"editor.mouseWheelScrollSensitivity": 5,
+	"[python]": {
+		"editor.defaultFormatter": "ms-python.python"
+	},
+	"python.formatting.provider": "none",
+	"editor.defaultFormatter": "ms-python.black-formatter",
+	"black-formatter.interpreter": ["/home/j/anaconda3/bin/python"]
+}
