@@ -5,59 +5,33 @@ from sklearn.model_selection import cross_val_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
-from Part1_2_Common.analysis import (get_feature_pair_correlations,
-                                     get_feature_types)
-from Part1_2_Common.cleaning import export_and_print_table, print_results
+from Part1_2_Common.analysis import (get_feature_types,
+                                     run_feature_correlation_analysis)
+from Part1_2_Common.cleaning import print_results
 from Part1_2_Common.config import SEED
 from Part1_2_Common.preprocessing import Preprocessor
-from Part2.analysis import (get_numerical_correlations, get_top_n_categories,
-                            load_original_data)
-from Part2.config import DATA_FILENAMES, MAPPINGS, PCA_SAMPLE_FRACTION
+from Part2.analysis import (get_top_n_categories, load_original_data,
+                            reduce_to_n_categories)
+from Part2.config import (DATA_FILENAMES, MAPPINGS, RFE_SAMPLE_FRACTION,
+                          VAR_THRESHOLD)
 
 
 class Part2Preprocessor(Preprocessor):
     def __init__(self, df):
         super().__init__(df)
 
-        # Initialise capital feature thresholds
-        self.binary_thresholds = {}
+        # Initialise low variance categories list
+        self.categories_to_drop = {}
 
         # Initialise one-hot encoder
         self.encoder = OneHotEncoder(drop='first', sparse=False)
 
-        # Initialise feature reduction hyperparameter and model
-        self.n_components = 0
-        self.pca = PCA()
+        # Initialise reduction model
         self.reduction_model = RandomForestClassifier(
             random_state=SEED, n_jobs=-1
         )
 
-    # Preprocessing assessment functions
-    def assess_class_correlations(self, process_str):
-        numerical, _ = get_feature_types(self.df)
-        numerical_corrs = get_numerical_correlations(self.df, numerical)
-        export_and_print_table(
-            f'{process_str} assessment', numerical_corrs)
-
-    def assess_feature_correlations(self):
-        numerical, _ = get_feature_types(self.df)
-
-        # Calculate Pearson
-        numerical_corr_matrix = self.df[numerical].corr(method='pearson')
-        get_feature_pair_correlations(numerical_corr_matrix, 'numerical')
-
-    # Preprocessing functions
-    def percentile_reduce(self):
-        features_to_reduce = ['age', 'hours-per-week']
-        
-        for feature in features_to_reduce:
-            # Calculate the 0.5th and 99.5th percentiles
-            lower_limit = df[feature].quantile(0.005)
-            upper_limit = df[feature].quantile(0.995)
-
-            # Filter the DataFrame to retain only rows within the percentile limits
-            self.df = self.df[(self.df[feature] >= lower_limit) & (self.df[feature] <= upper_limit)]
-        
+    # Preprocessing functions      
     def impute(self):
         print('\nImputing')
 
@@ -78,45 +52,16 @@ class Part2Preprocessor(Preprocessor):
         after = self.df.isnull().sum().sum()
 
         print_results('missing values', 'imputation', before, after)
-
-    def calculate_threshold(self, feature):
-        sorted_df = self.df.sort_values(by=[self.class_, feature])
-
-        # Find the 95th percentile for the lower category
-        lower_category = sorted_df[self.class_].min()
-        lower_category_df = sorted_df[sorted_df[self.class_] == lower_category]
-        threshold = (lower_category_df[feature].quantile(
-            0.99))
-        self.binary_thresholds[feature] = int(threshold)
-
-    def convert_continuous_to_binary(self, feature):
-        # Calculate the threshold with training dataset
-        if self.data_name == 'training':
-            self.calculate_threshold(feature)
-
-        # Create a new binary categorical feature based on the threshold
-        self.df[f"{feature}_>{self.binary_thresholds[feature]}"] = self.df[
-            feature
-        ].apply(lambda x: 1 if x > self.binary_thresholds[feature] else 0)
-
-        self.df.drop(columns=feature, inplace=True)
-
+    
     def convert_to_binary(self):
-        numerical = ['capital-gain', 'capital-loss']
-        categorical = [
-            'native-country', 'sex', 'income']
-
-        print(
-            f'\nConverting categorical columns {", ".join(categorical)},')
-        print(
-            f'and numerical columns {", ".join(numerical)} to binary')
+        print('\nConverting categorical columns to binary')
 
         # Get columns before conversion
-        before = ', '.join(list(self.df.columns))
-
-        # Convert numerical features to binary
-        for feature in numerical:
-            self.convert_continuous_to_binary(feature)
+        categorical = [
+            'native-country', 'sex', 'income']
+        before = ", ".join(categorical)
+        
+        new_cols = []
 
         # Convert categorical features to binary
         for feature in categorical:
@@ -128,6 +73,7 @@ class Part2Preprocessor(Preprocessor):
             new_col_name = f"{feature}_{top_category}"
             self.df[new_col_name] = (
                 self.df[feature] == top_category).astype(int)
+            new_cols.append(new_col_name)
 
             # Drop original column
             self.df.drop(columns=feature, inplace=True)
@@ -141,26 +87,54 @@ class Part2Preprocessor(Preprocessor):
         ]
 
         # Get columns after conversion
-        after = ', '.join(list(self.df.columns))
+        after = ', '.join(new_cols)
 
         process_str = 'binary conversion'
         print_results('features and class', process_str, before, after)
-        self.assess_class_correlations(process_str)
 
+    def identify_low_variance_categories(self):
+        features = ['relationship', 'marital-status', 'occupation']
+
+        for feature in features:
+            # Group by the feature and calculate the variance of the class within each group
+            category_variances = self.df.groupby(feature)[self.class_].var()
+
+            # Identify categories with variance below the threshold
+            low_variance_categories = category_variances[category_variances < VAR_THRESHOLD].index
+
+            self.categories_to_drop[feature] = low_variance_categories.tolist()
+    
+    def remove_low_variance_categories(self):
+        if self.data_name == 'training':
+            self.identify_low_variance_categories()
+        
+        print(f"\nRemoving categories with variance below {VAR_THRESHOLD}")
+        
+        # Count instances before removal
+        before = self.df.shape[0]
+
+        for feature, categories in self.categories_to_drop.items():
+            self.df = self.df[~self.df[feature].isin(categories)]
+        
+        # Count instances after outlier removal
+        after = self.df.shape[0]
+
+        print_results('instances', 'category removal', before, after)
+        
     def transform_correlated_features(self):
         print("\nTransforming highly correlated features")
-
         # Get columns before transformation and removal
         before = len(self.df.columns[:-1])
 
-        # Define the pairs of categorical and binary numeric features
+        # Combine relationship and marital status
+        self.df['relationship_marital_status'] = self.df['relationship'] + "_" + self.df['marital-status']
+        self.df.drop(columns=['relationship', 'marital-status'], inplace=True)
+        
         pairs = [
-            ('relationship', 'sex_Male'),
-            ('marital-status', 'sex_Male'),
-            ('race', 'native-country_United-States')
+            ('relationship_marital_status', 'sex_Male'),
+            ('occupation', 'sex_Male'),
         ]
 
-        # Loop through each pair and create interaction terms
         for categorical_feature, binary_feature in pairs:
             # Create new features representing the binary feature interaction
             for category in self.df[categorical_feature].unique():
@@ -171,14 +145,18 @@ class Part2Preprocessor(Preprocessor):
 
                 self.df[new_col_name] = (condition1 & condition2).astype(int)
 
-        # Remove all highly correlated features
-        # self.df.drop(columns=['x', 'y', 'z', 'carat'], inplace=True)
+        self.df.drop(columns='sex_Male', inplace=True)
+        
+        # Move class column to end of dataframe
+        self.df = self.df[
+            [col for col in self.df if col != self.class_] + [self.class_]
+        ]
 
         # Get columns after transformation and removal
         after = len(self.df.columns[:-1])
 
         print_results('features', 'transformation', before, after)
-        self.assess_feature_correlations()
+        run_feature_correlation_analysis(self.df)
 
     def encode_nominal_features(self):
         print("\nEncoding nominal categorical features")
@@ -221,34 +199,26 @@ class Part2Preprocessor(Preprocessor):
         print_results('categorical features', 'encoding', before, after)
 
     def cross_validate_reduction(self):
-        # Use sample of data for PCA cross-validation
-        sample_df = self.df.sample(frac=PCA_SAMPLE_FRACTION, random_state=SEED)
+        # Use sample of data for RFE cross-validation
+        sample_df = self.df.sample(frac=0.2, random_state=SEED)
         sample_X = sample_df.drop(columns=self.class_)
         sample_y = sample_df[self.class_]
 
-        # Initialise the explained variance ratio and early stopping counter
-        explained_variance_ratio = 0
+        # Initialize the highest score and early stopping counter
+        highest_score = 0
         no_improve = 0
         early_stopping_rounds = 5
+        n_features = sample_X.shape[1]
 
-        # Determine the number of components to retain
-        for i in range(1, sample_X.shape[1] + 1, 5):
-            pca = PCA(n_components=i, random_state=SEED)
-            pipeline = Pipeline(
-                steps=[('pca', pca), ('model', self.reduction_model)]
-            )
-            score = cross_val_score(
-                pipeline,
-                sample_X,
-                sample_y,
-                cv=5,
-                n_jobs=-1,
-                scoring="accuracy",
-            ).mean()
+        # Determine the number of features to retain
+        for i in range(1, n_features + 1):
+            selector = RFE(self.reduction_model, n_features_to_select=i)
+            pipeline = Pipeline(steps=[('rfe', selector), ('model', self.reduction_model)])
+            score = cross_val_score(pipeline, sample_X, sample_y, cv=5, n_jobs=-1, scoring="accuracy").mean()
 
-            if score > explained_variance_ratio:
-                explained_variance_ratio = score
-                self.n_components = i
+            if score > highest_score:
+                highest_score = score
+                self.n_features = i
                 no_improve = 0  # reset counter
             else:
                 no_improve += 1  # increment counter
@@ -256,10 +226,10 @@ class Part2Preprocessor(Preprocessor):
                 break
 
     def reduce_features(self):
-        print("\nReducing features with PCA")
+        print("\nReducing features with RFE")
 
         if self.data_name == 'training':
-            # Cross-validate to find best n_components
+            # Cross-validate to find best number of features
             self.cross_validate_reduction()
 
         # Separate features and class data
@@ -269,19 +239,15 @@ class Part2Preprocessor(Preprocessor):
         # Count features before reduction
         before = len(X.columns)
 
-        # Fit PCA with CV n_components to training dataset
+        # Fit RFE with CV n_features to training dataset
         if self.data_name == 'training':
-            self.pca = PCA(n_components=self.n_components, random_state=SEED)
-            self.pca.fit(X)
+            self.selector = RFE(self.reduction_model, n_features_to_select=self.n_features)
+            self.selector = self.selector.fit(X, y)
 
         # Reduce
-        X_reduced = self.pca.transform(X)
+        X_reduced = X.loc[:, self.selector.support_]
 
-        # Convert the reduced data to dataframe and concatenate with class
-        X_reduced = pd.DataFrame(
-            X_reduced,
-            columns=[f"PC{i}" for i in range(1, self.n_components + 1)],
-        )
+        # Concatenate the reduced data with class
         self.df = pd.concat([X_reduced, y.reset_index(drop=True)], axis=1)
 
         # Count features after reduction
@@ -290,16 +256,15 @@ class Part2Preprocessor(Preprocessor):
         print_results('features', 'reduction', before, after)
 
     def preprocess(self):
-        self.percentile_reduce()
         self.impute()
+        self.remove_outliers()
         self.map_ordinal_features(MAPPINGS)
-        self.assess_class_correlations('ordinal mapping')
         self.remove_redundant_features(['education-num', 'fnlwgt'])
         self.convert_to_binary()
+        self.remove_low_variance_categories()
         self.transform_correlated_features()
-        self.remove_outliers()
         self.encode_nominal_features()
-        # self.reduce_features()
+        self.reduce_features()
         self.scale()
         self.write_cleaned_data(f'{DATA_FILENAMES[self.data_name]}')
 

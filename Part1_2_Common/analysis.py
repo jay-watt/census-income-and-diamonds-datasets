@@ -7,9 +7,9 @@ import seaborn as sns
 from scipy.stats import chi2_contingency, kurtosis, skew
 
 from Part1_2_Common.cleaning import export_and_print_table
-from Part1_2_Common.config import (CORR_THRESHOLD, HIGH_SKEW_THRESHOLD,
-                                   KURT_THRESHOLD, PLOTS_DIR, SKEW_THRESHOLD,
-                                   UNITS)
+from Part1_2_Common.config import (CORR_THRESHOLD, EXCESS_KURT_THRESHOLD,
+                                   HIGH_SKEW_THRESHOLD, PLOTS_DIR,
+                                   SKEW_THRESHOLD, UNITS)
 
 
 # Helper functions
@@ -162,25 +162,28 @@ def plot_numerical_distributions(df, numerical):
 
 
 def interpret_skewness(skew):
-    if skew < -SKEW_THRESHOLD:
-        return (
-            'Long' if skew < -HIGH_SKEW_THRESHOLD else 'Very long'
-        ) + ' left tail'
+    if skew <= -HIGH_SKEW_THRESHOLD:
+        return 'Very long left tail'
+    elif -HIGH_SKEW_THRESHOLD < skew < -SKEW_THRESHOLD:
+        return 'Long left tail'
     elif -SKEW_THRESHOLD <= skew <= SKEW_THRESHOLD:
         return 'Approximately symmetric'
+    elif SKEW_THRESHOLD < skew <= HIGH_SKEW_THRESHOLD:
+        return 'Long right tail'
     else:
-        return (
-            'Long' if skew > HIGH_SKEW_THRESHOLD else 'Very long'
-        ) + ' right tail'
+        return 'Very long right tail'
 
 
 def interpret_kurtosis(kurt):
-    if kurt < KURT_THRESHOLD - 0.5:
+    
+    excess_kurt = kurt - 3
+    
+    if excess_kurt < -EXCESS_KURT_THRESHOLD:
         return 'Light tails, platykurtic'
-    elif kurt > KURT_THRESHOLD + 0.5:
+    elif excess_kurt > EXCESS_KURT_THRESHOLD:
         return 'Heavy tails, leptokurtic'
     else:
-        return 'Approximately normal, mesokurtic'
+        return 'Approximately normal tails, mesokurtic'
 
 
 def calculate_skewness_and_kurtosis(df, numerical):
@@ -266,15 +269,16 @@ def get_feature_pair_correlations(corr_matrix, feature_type):
     pairs_df = pairs_df.sort_values(
         by='correlation', key=lambda x: x.abs(), ascending=False
     ).reset_index(drop=True)
-
     # Name the index 'ranking'
     pairs_df.index.name = 'ranking'
+    pairs_df.index += 1
 
     # Export and display feature pairs
-    export_and_print_table(
-        f'{feature_type} feature pair correlations',
-        pairs_df,
-    )
+    if len(pairs_df) > 0:
+        export_and_print_table(
+            f'{feature_type} feature pair correlations',
+            pairs_df,
+        )
 
 
 # Categorical correlation analysis function
