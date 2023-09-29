@@ -33,6 +33,6 @@ def plot_model_metrics(df):
 def display_modelling_results(df):
     plot_model_metrics(df)
 
-    export_and_print_table('algorithm comparison results', df)
+    export_and_print_table('model comparison results', df)
 
     print('\n--- Modelling complete! ---')

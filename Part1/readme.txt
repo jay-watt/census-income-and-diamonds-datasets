@@ -40,5 +40,6 @@ Note: Ensure that you have all the necessary libraries and dependencies installe
 Warnings from libraries have been suppressed for cleaner output, but please make sure to check for any critical warnings or errors in your environment or in the console.
 
 Additional Notes: 
-   - All generated plots will be saved in the 'Plots' directory located in the parent directory of the program.
-   - All generated tables will be saved as seperate sheets in the tables.xlsx file located in the parent directory of the program.
+   - All plots generated during analysis and modelling will be saved in the 'Plots' directory located in the parent directory of the program.
+   - All tables generated during analysis will be saved as seperate sheets in the analysis.xlsx file located in the parent directory of the program.
+   - The table generated during modelling will be saved in the regression_results.xlsx file located in the parent directory of the program.

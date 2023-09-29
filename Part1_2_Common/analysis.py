@@ -1,4 +1,5 @@
 import math
+import os
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -9,7 +10,45 @@ from scipy.stats import chi2_contingency, kurtosis, skew
 from Part1_2_Common.cleaning import export_and_print_table
 from Part1_2_Common.config import (CORR_THRESHOLD, EXCESS_KURT_THRESHOLD,
                                    HIGH_SKEW_THRESHOLD, PLOTS_DIR,
-                                   SKEW_THRESHOLD, UNITS)
+                                   SKEW_THRESHOLD, TABLES_DIR, UNITS)
+
+
+# Function to convert all saved analysis spreadsheets into a single file
+def condense_tables():
+    output_filename = 'analysis.xlsx'
+    output_filepath = os.path.join(TABLES_DIR, output_filename)
+
+    with pd.ExcelWriter(output_filepath, engine='xlsxwriter') as writer:
+        for file_name in os.listdir(TABLES_DIR):
+            if file_name.endswith('.xlsx') and file_name != output_filename:
+                file_path = os.path.join(TABLES_DIR, file_name)
+
+                try:
+                    data = pd.read_excel(file_path, engine='openpyxl')
+                except Exception as e:
+                    print(f"Error reading {file_name}: {e}")
+                    continue
+
+                def format_cell(x):
+                    if isinstance(x, str) and not x.isupper():
+                        return x.capitalize()
+                    elif isinstance(x, float):
+                        return '{:,.2f}'.format(x)
+                    elif isinstance(x, int):
+                        return '{:,}'.format(x)
+                    return x
+
+                data = data.applymap(format_cell)
+
+                # Format the headers (column names)
+                data.columns = [col.capitalize() for col in data.columns]
+
+                data.to_excel(writer, sheet_name=f'{file_name[:-5]}', index=False)
+
+                try:
+                    os.remove(file_path)
+                except Exception as e:
+                    print(f"Error deleting {file_name}: {e}")
 
 
 # Helper functions
@@ -175,9 +214,9 @@ def interpret_skewness(skew):
 
 
 def interpret_kurtosis(kurt):
-    
+
     excess_kurt = kurt - 3
-    
+
     if excess_kurt < -EXCESS_KURT_THRESHOLD:
         return 'Light tails, platykurtic'
     elif excess_kurt > EXCESS_KURT_THRESHOLD:
@@ -209,7 +248,7 @@ def calculate_skewness_and_kurtosis(df, numerical):
     )
 
     export_and_print_table(
-        'numerical feature skewness and kurtosis', skew_and_kurt_df
+        'skewness and kurtosis', skew_and_kurt_df
     )
 
 

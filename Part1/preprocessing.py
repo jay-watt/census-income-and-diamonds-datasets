@@ -79,7 +79,7 @@ class Part1Preprocessor(Preprocessor):
         print("\nTransforming and/or removing highly correlated features")
 
         # Get columns before transformation and removal
-        before = ', '.join(list(self.df.columns))
+        before = '\n     ' + ', '.join(list(self.df.columns))
 
         # Create new volume feature
         self.df['volume'] = self.df['x'] * self.df['y'] * self.df['z']
@@ -93,7 +93,7 @@ class Part1Preprocessor(Preprocessor):
         ]
 
         # Get columns after transformation and removal
-        after = ', '.join(list(self.df.drop(columns=self.class_).columns))
+        after = '\n     ' + ', '.join(list(self.df.drop(columns=self.class_).columns))
 
         print_results('features', 'transformation', before, after)
 

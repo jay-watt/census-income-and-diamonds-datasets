@@ -3,8 +3,9 @@ import seaborn as sns
 from scipy.stats import f_oneway, pearsonr
 
 from Part1.cleaning import load_original_data
-from Part1_2_Common.analysis import (create_plot_layout, export_and_show_plot,
-                                     format_plot_axes, get_feature_types,
+from Part1_2_Common.analysis import (condense_tables, create_plot_layout,
+                                     export_and_show_plot, format_plot_axes,
+                                     get_feature_types,
                                      run_feature_correlation_analysis,
                                      run_univariate_numerical_analysis,
                                      summarise)
@@ -182,12 +183,12 @@ def run_class_correlation_analysis(df):
 
     numerical_corrs = get_numerical_correlations(df, numerical)
     export_and_print_table(
-        'numerical feature correlations with class', numerical_corrs
+        'numerical correlations with class', numerical_corrs
     )
 
     categorical_corrs = get_categorical_correlations(df, categorical)
     export_and_print_table(
-        'categorical feature correlations with class', categorical_corrs
+        'categorical correlations with class', categorical_corrs
     )
 
     plot_class_correlations(numerical_corrs, categorical_corrs)
@@ -217,5 +218,8 @@ def run_analysis():
 
     # Class correlation analysis
     run_class_correlation_analysis(df)
+
+    # Export tables
+    condense_tables()
 
     print('\n--- Data analysis complete! ---\n')
