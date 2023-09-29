@@ -1,5 +1,3 @@
-import os
-
 import numpy as np
 import pandas as pd
 from tabulate import tabulate
@@ -32,7 +30,7 @@ def export_and_print_table(title, df):
     # Print dataframe as a text table
     formatted_title = ' '.join(word.capitalize() for word in title.split())
     formatted_table = tabulate(
-        df,
+        df.round(2),
         headers=[df.index.name] + list(df.columns),
         tablefmt='fancy_grid',
         showindex='always',

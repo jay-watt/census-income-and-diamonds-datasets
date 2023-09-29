@@ -21,14 +21,15 @@ class Part2Preprocessor(Preprocessor):
         # Initialise low variance categories list
         self.categories_to_drop = {}
 
-        # Initialise one-hot encoder
+        # Initialise one-hot encoder and column names
         self.encoder = OneHotEncoder(drop='first', sparse=False)
+        self.encoded_columns = []
 
         # Initialise reduction variables
         self.reduction_model = RandomForestClassifier(
-            random_state=SEED, n_jobs=-1, n_estimators=20
+            random_state=SEED
         )
-        self.selector = None
+        self.selector = RFE(estimator=self.reduction_model)
         self.n_features = None
 
     # Preprocessing functions
@@ -96,11 +97,13 @@ class Part2Preprocessor(Preprocessor):
         features = ['relationship', 'marital-status', 'occupation']
 
         for feature in features:
-            # Group by the feature and calculate the variance of the class within each group
-            category_variances = self.df.groupby(feature)[self.class_].var()
+            # Group by the feature and calculate the variance
+            category_variances = self.df.groupby(
+                feature)[self.class_].var()
 
             # Identify categories with variance below the threshold
-            low_variance_categories = category_variances[category_variances < VAR_THRESHOLD].index
+            low_variance_categories = category_variances[
+                category_variances < VAR_THRESHOLD].index
 
             self.categories_to_drop[feature] = low_variance_categories.tolist()
 
@@ -127,7 +130,8 @@ class Part2Preprocessor(Preprocessor):
         before = len(self.df.columns[:-1])
 
         # Combine relationship and marital status
-        self.df['relationship_marital_status'] = self.df['relationship'] + "_" + self.df['marital-status']
+        self.df['relationship_marital_status'] = self.df[
+            'relationship'] + "_" + self.df['marital-status']
         self.df.drop(columns=['relationship', 'marital-status'], inplace=True)
 
         pairs = [
@@ -159,6 +163,7 @@ class Part2Preprocessor(Preprocessor):
 
     def encode_nominal_features(self):
         print("\nEncoding nominal categorical features")
+        print(self.df.columns)
 
         # Count categorical features before encoding
         _, categorical = get_feature_types(self.df)
@@ -170,7 +175,8 @@ class Part2Preprocessor(Preprocessor):
 
         # Encode
         encoded_df = self.encoder.transform(self.df[categorical])
-        encoded_features = self.encoder.get_feature_names_out(categorical)
+        encoded_features = self.encoder.get_feature_names_out(
+            categorical).astype(str)
 
         # Replace the original categorical columns
         self.df.drop(columns=categorical, inplace=True)
@@ -185,6 +191,23 @@ class Part2Preprocessor(Preprocessor):
             ],
             axis=1,
         )
+
+        # Save encoded columns from training
+        if self.data_name == 'training':
+            self.encoded_columns = self.df.columns
+        else:
+            # Add missing columns to test and set to 0
+            for column in self.encoded_columns:
+                if column not in self.df.columns:
+                    self.df[column] = 0
+            # Remove additional columns from test
+            columns_to_drop = [
+                column for column in self.df.columns
+                if column not in self.encoded_columns]
+            self.df.drop(columns=columns_to_drop, inplace=True)
+
+            # Place columns in same order as training
+            self.df = self.df[self.encoded_columns]
 
         # Move class column to end of dataframe
         self.df = self.df[
@@ -203,17 +226,24 @@ class Part2Preprocessor(Preprocessor):
         sample_X = sample_df.drop(columns=self.class_)
         sample_y = sample_df[self.class_]
 
-        # Initialize the highest score and early stopping counter
+        # Initialise the highest score and early stopping counter
         highest_score = 0
         no_improve = 0
         early_stopping_rounds = 5
-        n_features = sample_X.shape[1]
 
         # Determine the number of features to retain
-        for i in range(10, n_features + 1, 10):
+        for i in range(47, 50):
             selector = RFE(self.reduction_model, n_features_to_select=i)
-            pipeline = Pipeline(steps=[('rfe', selector), ('model', self.reduction_model)])
-            score = cross_val_score(pipeline, sample_X, sample_y, cv=5, n_jobs=-1, scoring="accuracy").mean()
+            pipeline = Pipeline(steps=[('rfe', selector), (
+                'model', self.reduction_model)])
+            score = cross_val_score(
+                pipeline,
+                sample_X,
+                sample_y,
+                cv=5,
+                n_jobs=-1,
+                scoring="accuracy"
+            ).mean()
 
             if score > highest_score:
                 highest_score = score
@@ -240,7 +270,8 @@ class Part2Preprocessor(Preprocessor):
 
         # Fit RFE with CV n_features to training dataset
         if self.data_name == 'training':
-            self.selector = RFE(self.reduction_model, n_features_to_select=self.n_features)
+            self.selector = RFE(
+                self.reduction_model, n_features_to_select=self.n_features)
             self.selector = self.selector.fit(X, y)
 
         # Reduce

@@ -43,7 +43,8 @@ def condense_tables():
                 # Format the headers (column names)
                 data.columns = [col.capitalize() for col in data.columns]
 
-                data.to_excel(writer, sheet_name=f'{file_name[:-5]}', index=False)
+                data.to_excel(
+                    writer, sheet_name=f'{file_name[:-5]}', index=False)
 
                 try:
                     os.remove(file_path)
@@ -157,12 +158,12 @@ def create_plot_layout(num_plots, num_cols=None):
 
 def format_plot_axes(plot, xlabel, ylabel):
     # Add units to axis labels if applicable
-    xlabel = xlabel if xlabel.istitle() else ' '.join(word.capitalize()
-                                                      for word in xlabel.split())
+    xlabel = xlabel if xlabel.istitle() else ' '.join(
+        word.capitalize() for word in xlabel.split())
     xlabel += f' ({UNITS[xlabel]})' if xlabel in UNITS else ''
 
-    ylabel = ylabel if ylabel.istitle() else ' '.join(word.capitalize()
-                                                      for word in ylabel.split())
+    ylabel = ylabel if ylabel.istitle() else ' '.join(
+        word.capitalize() for word in ylabel.split())
     ylabel += f' ({UNITS[ylabel]})' if ylabel in UNITS else ''
 
     # Set axis labels

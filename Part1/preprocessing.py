@@ -93,7 +93,8 @@ class Part1Preprocessor(Preprocessor):
         ]
 
         # Get columns after transformation and removal
-        after = '\n     ' + ', '.join(list(self.df.drop(columns=self.class_).columns))
+        after = '\n     ' + ', '.join(
+            list(self.df.drop(columns=self.class_).columns))
 
         print_results('features', 'transformation', before, after)
 
