@@ -11,47 +11,50 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.svm import SVR, LinearSVR
 from sklearn.tree import DecisionTreeRegressor
 
-from Part1.config import CV_SAMPLE_FRACTION, DATA_FILENAME
-from Part1_2_Common.analysis import print_process_heading
 from Part1_2_Common.config import SEED
-from Part1_2_Common.modelling import (display_modelling_results,
-                                      load_cleaned_data)
+from Part1_2_Common.modelling import (
+    display_modelling_results,
+    load_cleaned_data,
+)
+from Part1_2_Common.preprocessing import print_process_heading
+
+CV_SAMPLE_FRACTION = 0.5
 
 
-# Preparation functions
+# Preparation
 def initialise_models():
     return [
-        ('Linear', LinearRegression()),
-        ('K-Neighbors', KNeighborsRegressor()),
-        ('Ridge', Ridge(random_state=SEED)),
-        ('Decision Tree', DecisionTreeRegressor(random_state=SEED)),
+        ("Linear", LinearRegression()),
+        ("K-Neighbors", KNeighborsRegressor()),
+        ("Ridge", Ridge(random_state=SEED)),
+        ("Decision Tree", DecisionTreeRegressor(random_state=SEED)),
         (
-            'Random Forest',
+            "Random Forest",
             RandomForestRegressor(random_state=SEED),
         ),
         (
-            'Gradient Boosting',
+            "Gradient Boosting",
             GradientBoostingRegressor(random_state=SEED),
         ),
-        ('SGD', SGDRegressor(random_state=SEED)),
-        ('Support Vector', SVR()),
-        ('Linear SVR', LinearSVR(random_state=SEED)),
+        ("SGD", SGDRegressor()),
+        ("Support Vector", SVR()),
+        ("Linear SVR", LinearSVR(random_state=SEED)),
         (
-            'Multi-layer Perceptron',
+            "Multi-layer Perceptron",
             MLPRegressor(random_state=SEED),
         ),
     ]
 
 
 def prepare_for_modelling():
-    print_process_heading('modelling')
+    print_process_heading("modelling")
 
-    X_train, y_train = load_cleaned_data(f'{DATA_FILENAME}_training')
-    X_test, y_test = load_cleaned_data(f'{DATA_FILENAME}_test')
+    X_train, y_train = load_cleaned_data("training")
+    X_test, y_test = load_cleaned_data("test")
     return X_train, X_test, y_train, y_test, initialise_models()
 
 
-# Assessment functions
+# Assessment
 def calculate_metrics(y_test, predictions):
     mse = mean_squared_error(y_test, predictions)
     rmse = np.sqrt(mse)
@@ -72,7 +75,7 @@ def cross_validate(model, X_train, y_train):
         )
 
         cv_scores = cross_val_score(
-            model, X_subset, y_subset, scoring='neg_mean_squared_error'
+            model, X_subset, y_subset, scoring="neg_mean_squared_error"
         )
         rmse_scores.append(np.sqrt(-cv_scores.mean()))
     return np.mean(rmse_scores)
@@ -84,11 +87,11 @@ def get_model_metrics(model, results, X_train, y_train, y_test, predictions):
 
     results[-1].update(
         {
-            'MSE': mse,
-            'RMSE': rmse,
-            'RSE': rse,
-            'MAE': mae,
-            'CV RMSE': cv_rmse,
+            "MSE": mse,
+            "RMSE": rmse,
+            "RSE": rse,
+            "MAE": mae,
+            "CV RMSE": cv_rmse,
         }
     )
 
@@ -101,7 +104,7 @@ def assess_model(name, model, results, X_train, X_test, y_train, y_test):
     predictions = model.predict(X_test)
 
     results.append(
-        {'algorithm': name, 'execution_time': time.time() - start_time}
+        {"algorithm": name, "execution_time": time.time() - start_time}
     )
 
     return get_model_metrics(
@@ -122,10 +125,10 @@ def run_assessment(X_train, X_test, y_train, y_test, models):
         )
 
     comparison_results_df = pd.DataFrame(comparison_results)
-    return comparison_results_df.set_index('algorithm')
+    return comparison_results_df.set_index("algorithm")
 
 
-# Main modelling function
+# Main
 def run_modelling():
     # Preparation
     X_train, X_test, y_train, y_test, models = prepare_for_modelling()

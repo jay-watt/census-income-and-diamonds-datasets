@@ -9,7 +9,7 @@ from Part1_2_Common.analysis import (calculate_cramers_v, condense_tables,
                                      run_feature_correlation_analysis,
                                      run_univariate_numerical_analysis,
                                      summarise)
-from Part1_2_Common.cleaning import export_and_print_table
+from Part1_2_Common.preprocessing import export_and_print_table
 from Part1_2_Common.config import PALETTE
 from Part2.cleaning import balance_class_categories, load_original_data
 

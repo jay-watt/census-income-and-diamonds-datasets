@@ -1,11 +1,16 @@
 {
-	"editor.codeActionsOnSave": {},
+	"editor.defaultFormatter": "ms-python.black-formatter",
+	"editor.codeActionsOnSave": {
+		"source.fixAll": true
+	},
+	"editor.formatOnSave": true,
 	"python.analysis.typeCheckingMode": "basic",
 	"editor.mouseWheelScrollSensitivity": 5,
 	"[python]": {
-		"editor.defaultFormatter": "ms-python.python"
+		"editor.defaultFormatter": "ms-python.black-formatter",
+		"editor.formatOnSave": true
 	},
-	"python.formatting.provider": "none",
-	"editor.defaultFormatter": "ms-python.black-formatter",
-	"black-formatter.interpreter": ["/home/j/anaconda3/bin/python"]
+	"black-formatter.interpreter": ["/home/j/anaconda3/bin/python"],
+	"black-formatter.args": ["--line-length", "79"],
+	"python.languageServer": "Pylance"
 }

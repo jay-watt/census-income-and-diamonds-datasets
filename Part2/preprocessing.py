@@ -6,9 +6,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
 from Part1_2_Common.analysis import get_feature_types
-from Part1_2_Common.cleaning import print_results
+from Part1_2_Common.preprocessing import print_results
 from Part1_2_Common.config import SEED
-from Part1_2_Common.preprocessing import Preprocessor
+from Part1_2_Common.analysis import Preprocessor
 from Part2.analysis import get_top_n_categories, load_original_data
 from Part2.config import (DATA_FILENAMES, MAPPINGS, RFE_SAMPLE_FRACTION,
                           VAR_THRESHOLD)

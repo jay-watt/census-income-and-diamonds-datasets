@@ -4,7 +4,7 @@ import seaborn as sns
 
 from Part1_2_Common.analysis import (export_and_show_plot, format_plot_axes,
                                      print_process_heading)
-from Part1_2_Common.cleaning import Cleaner
+from Part1_2_Common.preprocessing import Cleaner
 from Part1_2_Common.config import ORIGINAL_DATA_DIR
 from Part2.config import COLUMN_NAMES, DATA_FILENAMES
 
