@@ -2,11 +2,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from Part1_2_Common.analysis import (export_and_show_plot, format_plot_axes,
-                                     print_process_heading)
-from Part1_2_Common.preprocessing import Cleaner
-from Part1_2_Common.config import ORIGINAL_DATA_DIR
-from Part2.config import COLUMN_NAMES, DATA_FILENAMES
+from common.analysis import (export_and_show_plot, format_plot_axes,
+                             print_process_heading)
+from common.preprocessing import Cleaner
+from common.config import ORIGINAL_DATA_DIR
+from census_income.config import COLUMN_NAMES, DATA_FILENAMES
 
 
 def balance_class_categories(df):

@@ -1,8 +1,8 @@
 import pandas as pd
 import seaborn as sns
 
-from Part1_2_Common.config import CLEANED_DATA_DIR
-from Part1_2_Common.preprocessing import (
+from common.config import CLEANED_DATA_DIR
+from common.preprocessing import (
     create_plot_layout,
     export_and_show_plot,
     format_plot_axes,

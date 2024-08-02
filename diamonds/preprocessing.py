@@ -8,8 +8,8 @@ from sklearn.impute import IterativeImputer
 from sklearn.linear_model import LinearRegression
 from sklearn.model_selection import train_test_split
 
-from Part1_2_Common.config import KDE_SAMPLE_SIZE, ORIGINAL_DATA_DIR, SEED
-from Part1_2_Common.preprocessing import (
+from common.config import KDE_SAMPLE_SIZE, ORIGINAL_DATA_DIR, SEED
+from common.preprocessing import (
     Preprocessor,
     calculate_skewness_and_kurtosis,
     condense_and_export_tables,

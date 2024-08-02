@@ -11,12 +11,12 @@ from sklearn.neural_network import MLPRegressor
 from sklearn.svm import SVR, LinearSVR
 from sklearn.tree import DecisionTreeRegressor
 
-from Part1_2_Common.config import SEED
-from Part1_2_Common.modelling import (
+from common.config import SEED
+from common.modelling import (
     display_modelling_results,
     load_cleaned_data,
 )
-from Part1_2_Common.preprocessing import print_process_heading
+from common.preprocessing import print_process_heading
 
 CV_SAMPLE_FRACTION = 0.5
 

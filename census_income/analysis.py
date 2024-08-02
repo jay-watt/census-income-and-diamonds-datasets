@@ -3,15 +3,14 @@ import pandas as pd
 import seaborn as sns
 from scipy.stats import pointbiserialr
 
-from Part1_2_Common.analysis import (calculate_cramers_v, condense_tables,
-                                     create_plot_layout, export_and_show_plot,
-                                     format_plot_axes, get_feature_types,
-                                     run_feature_correlation_analysis,
-                                     run_univariate_numerical_analysis,
-                                     summarise)
-from Part1_2_Common.preprocessing import export_and_print_table
-from Part1_2_Common.config import PALETTE
-from Part2.cleaning import balance_class_categories, load_original_data
+from common.preprocessing import (calculate_cramers_v, condense_tables,
+                                  create_plot_layout, export_and_show_plot,
+                                  format_plot_axes, get_feature_types, export_and_print_table,
+                                  run_feature_correlation_analysis,
+                                  run_univariate_numerical_analysis,
+                                  summarise)
+from common.config import PALETTE
+from census_income.cleaning import balance_class_categories, load_original_data
 
 sns.set_theme(style='darkgrid', palette=PALETTE)
 

@@ -1,16 +1,16 @@
+from census_income.preprocessing import run_preprocessing
+from census_income.modelling import run_modelling
+from census_income.analysis import run_analysis
+from common.config import CLEANED_DATA_DIR
 import argparse
 import os
 import sys
 import warnings
 
-part2_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(part2_dir)
+census_income_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(census_income_dir)
 sys.path.append(parent_dir)
 
-from Part1_2_Common.config import CLEANED_DATA_DIR
-from Part2.analysis import run_analysis
-from Part2.modelling import run_modelling
-from Part2.preprocessing import run_preprocessing
 
 warnings.filterwarnings('ignore')
 

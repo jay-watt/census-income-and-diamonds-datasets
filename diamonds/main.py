@@ -1,15 +1,15 @@
+from common.config import CLEANED_DATA_DIR
+from diamonds.modelling import run_modelling
+from diamonds.preprocessing import run_preprocessing_and_analysis
 import argparse
 import os
 import sys
 import warnings
 
-part1_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(part1_dir)
+diamonds_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(diamonds_dir)
 sys.path.append(parent_dir)
 
-from Part1.modelling import run_modelling
-from Part1.preprocessing import run_preprocessing_and_analysis
-from Part1_2_Common.config import CLEANED_DATA_DIR
 
 warnings.filterwarnings("ignore")
 

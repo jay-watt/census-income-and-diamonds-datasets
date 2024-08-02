@@ -9,7 +9,7 @@ from scipy.stats import chi2_contingency, kurtosis, skew
 from sklearn.preprocessing import StandardScaler
 from tabulate import tabulate
 
-from Part1_2_Common.config import (
+from common.config import (
     CLEANED_DATA_DIR,
     CORR_THRESHOLD,
     EXCESS_KURT_THRESHOLD,
@@ -368,7 +368,7 @@ def get_feature_pair_correlations(corr_matrix, feature_type):
     pairs = [
         (feature1, feature2)
         for i, feature1 in enumerate(corr_matrix.columns)
-        for j, feature2 in enumerate(corr_matrix.columns[i + 1 :], start=i + 1)
+        for j, feature2 in enumerate(corr_matrix.columns[i + 1:], start=i + 1)
     ]
 
     # Get correlation values for each pair

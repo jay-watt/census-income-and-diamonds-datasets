@@ -13,11 +13,11 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 
-from Part1_2_Common.analysis import print_process_heading
-from Part1_2_Common.config import SEED
-from Part1_2_Common.modelling import (display_modelling_results,
-                                      load_cleaned_data)
-from Part2.config import DATA_FILENAMES
+from common.analysis import print_process_heading
+from common.config import SEED
+from common.modelling import (display_modelling_results,
+                              load_cleaned_data)
+from census_income.config import DATA_FILENAMES
 
 
 # Preparation functions

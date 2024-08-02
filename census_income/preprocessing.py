@@ -5,16 +5,16 @@ from sklearn.model_selection import cross_val_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
-from Part1_2_Common.analysis import get_feature_types
-from Part1_2_Common.preprocessing import print_results
-from Part1_2_Common.config import SEED
-from Part1_2_Common.analysis import Preprocessor
-from Part2.analysis import get_top_n_categories, load_original_data
-from Part2.config import (DATA_FILENAMES, MAPPINGS, RFE_SAMPLE_FRACTION,
-                          VAR_THRESHOLD)
+from common.analysis import get_feature_types
+from common.preprocessing import print_results
+from common.config import SEED
+from common.analysis import Preprocessor
+from census_income.analysis import get_top_n_categories, load_original_data
+from census_income.config import (DATA_FILENAMES, MAPPINGS, RFE_SAMPLE_FRACTION,
+                                  VAR_THRESHOLD)
 
 
-class Part2Preprocessor(Preprocessor):
+class CensusIncomePreprocessor(Preprocessor):
     def __init__(self, df):
         super().__init__(df)
 
@@ -303,7 +303,7 @@ def run_preprocessing():
     train, test = load_original_data('preprocessing')
 
     # Preprocess training data
-    preprocessor = Part2Preprocessor(train)
+    preprocessor = CensusIncomePreprocessor(train)
     preprocessor.set_data_name('training')
     preprocessor.preprocess()
 
