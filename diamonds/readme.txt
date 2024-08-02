@@ -1,5 +1,5 @@
 =====================================================
-                    HOW TO RUN PART 1
+      HOW TO RUN DIAMONDS DATASET PROGRAM
 =====================================================
 
 This program is structured into multiple parts, including analysis, preprocessing, and modelling. Follow the instructions below to run each part:

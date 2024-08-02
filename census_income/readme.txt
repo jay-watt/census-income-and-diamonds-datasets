@@ -1,5 +1,5 @@
 =====================================================
-                    HOW TO RUN PART 2
+      HOW TO RUN CENSUS INCOME DATASET PROGRAM
 =====================================================
 
 This program is structured into multiple parts, including analysis, preprocessing, and modelling. Follow the instructions below to run each part:
