@@ -1,6 +1,6 @@
-from census_income.preprocessing import run_preprocessing
-from census_income.modelling import run_modelling
-from census_income.analysis import run_analysis
+from preprocessing import run_preprocessing
+from modelling import run_modelling
+from analysis import run_analysis
 from common.config import CLEANED_DATA_DIR
 import argparse
 import os
