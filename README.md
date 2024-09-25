@@ -1,4 +1,4 @@
-# Project Datasets: Diamonds and Census Income
+# Diamonds and Census Income Datasets
 
 This repository contains two separate projects focusing on data analysis: one on the Diamonds dataset and the other on the Census Income dataset. Each project is structured into multiple parts, including analysis, preprocessing, and modelling. Follow the instructions below to run each part of the projects.
 
