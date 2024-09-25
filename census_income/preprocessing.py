@@ -68,6 +68,7 @@ class CensusIncomePreprocessor(Preprocessor):
             top_category = get_top_n_categories(
                 self.dfs[set_type], feature, 1
             ).index.tolist()[0]
+            top_category = top_category.rstrip('.')
 
             # Create a new binary feature
             new_col_name = f"{feature}_{top_category}"
@@ -77,9 +78,10 @@ class CensusIncomePreprocessor(Preprocessor):
 
             # Drop original column
             self.dfs[set_type].drop(columns=feature, inplace=True)
-
+            print(f"Original class: {self.class_}")
             if feature == self.class_:
                 self.class_ = new_col_name
+                print(f"Updated class: {self.class_}")
 
         # Move class column to end of dataframe
         print(self.dfs[set_type].columns)
