@@ -3,12 +3,12 @@ common/__pycache__
 
 # Census income dataset
 census_income/__pycache__
-census_income/Plots/
-census_income/Tables/
-census_income/Data/Cleaned/
+census_income/Plots/*
+census_income/Tables/*
+census_income/Data/Cleaned/*
 
 # Diamonds dataset
 diamonds/__pycache__
-diamonds/Plots/
-diamonds/Tables/
-diamonds/Data/Cleaned/
+diamonds/Plots/*
+diamonds/Tables/*
+diamonds/Data/Cleaned/*
