@@ -19,27 +19,21 @@ def balance_class_categories(df):
     )
 
 
-class Part2Cleaner(Preprocessor):
-    def __init__(self, df, process_str):
-        super().__init__(df, process_str)
+class CensusIncomePreprocessor(Preprocessor):
+    def __init__(self, train, test, class_):
+        super().__init__(train, test, class_)
         self.top_categories = {}
 
-    def set_data_name(self, data_name):
-        self.data_name = data_name
-        print_process_heading(
-            f'cleaning {self.data_name} data for {self.process_str}'
-        )
-
-    def plot_missingness(self):
+    def plot_missingness(self, set_type):
         # Get features with missing values
-        missing = self.df.isnull().any()
+        missing = self.dfs[set_type].isnull().any()
         features = missing[missing].index.tolist()
 
         # Initialise a dataframe to store missingness information
         missing_df = pd.DataFrame()
 
         # Balance class categories
-        balanced_df = balance_class_categories(self.df)
+        balanced_df = balance_class_categories(self.dfs[set_type])
 
         # Reduce categories
         for feature in features:
@@ -71,10 +65,10 @@ class Part2Cleaner(Preprocessor):
 
         export_and_show_plot('missingness_to_class')
 
-    def clean(self):
-        self.remove_duplicates()
-        self.identify_missing_values('?')
-        self.plot_missingness()
+    def clean(self, set_type):
+        self.remove_duplicates(set_type)
+        self.identify_missing_values('?', set_type)
+        self.plot_missingness(set_type)
         print('\n--- Cleaning complete! ---\n')
 
 
@@ -97,16 +91,15 @@ def load_original_data(process_str):
         engine='python',
     )
 
-    cleaner = Part2Cleaner(training, test, COLUMN_NAMES[-1])
-    cleaner.set_data_name('training')
-    cleaner.clean()
-    cleaned_training = cleaner.df
+    class_ = training.columns[-1]
+    preprocessor = CensusIncomePreprocessor(training, test, class_)
+    preprocessor.clean('training')
+    cleaned_training = preprocessor.dfs["training"]
 
     if process_str == 'analysis':
         return cleaned_training, test
 
-    cleaner.df = test
-    cleaner.set_data_name('test')
-    cleaner.clean()
+    preprocessor.clean('test')
 
-    return cleaned_training, cleaner.df
+    cleaned_test = preprocessor.dfs["test"]
+    return cleaned_training, cleaned_test
