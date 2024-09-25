@@ -92,6 +92,7 @@ def load_original_data(process_str):
     )
 
     class_ = training.columns[-1]
+    test.columns[-1] = class_
     preprocessor = CensusIncomePreprocessor(training, test, class_)
     preprocessor.clean('training')
     cleaned_training = preprocessor.dfs["training"]
