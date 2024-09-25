@@ -5,8 +5,10 @@ common/__pycache__
 census_income/__pycache__
 census_income/Plots/
 census_income/Tables/
+census_income/Data/Cleaned/
 
 # Diamonds dataset
 diamonds/__pycache__
 diamonds/Plots/
 diamonds/Tables/
+diamonds/Data/Cleaned/
