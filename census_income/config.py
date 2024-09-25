@@ -1,6 +1,5 @@
-DATA_DIR = '/home/j/machine-learning/a4/Part2/data/original'
 DATA_FILENAMES = {'training': 'adult.data', 'test': 'adult.test'}
-PLOTS_FILENAME = 'part2'
+CLEANED_DATA_FILENAMES = {'training': 'training.csv', 'test': 'test.csv'}
 
 COLUMN_NAMES = [
     'age',

@@ -1,0 +1,331 @@
+Removing duplicates
+  -  duplicates before removal: 24
+  -  duplicates after removal: 0
+
+Identifying ?s as missing values
+  -  missing values before identification: 0
+  -  missing values after identification: 4261
+
+--- Cleaning complete! ---
+
+==================================================
+ANALYSING DATA
+==================================================
+
+Dataset Summary
+╒══════════════════════╤═════════╕
+│ attribute            │   count │
+╞══════════════════════╪═════════╡
+│ categorical features │       8 │
+├──────────────────────┼─────────┤
+│ numerical features   │       6 │
+├──────────────────────┼─────────┤
+│ total features       │      14 │
+├──────────────────────┼─────────┤
+│ total instances      │   32537 │
+╘══════════════════════╧═════════╛
+
+
+Numerical Statistics
+╒════════════════╤═════════╤═══════════╤═══════════╤═══════╤════════════════╤══════════════════╤═════════════════╕
+│ feature        │   count │      mean │       std │   min │            max │         variance │           range │
+╞════════════════╪═════════╪═══════════╪═══════════╪═══════╪════════════════╪══════════════════╪═════════════════╡
+│ age            │   32537 │     38.59 │     13.64 │    17 │    90          │    185.99        │    73           │
+├────────────────┼─────────┼───────────┼───────────┼───────┼────────────────┼──────────────────┼─────────────────┤
+│ fnlwgt         │   32537 │ 189781    │ 105556    │ 12285 │     1.4847e+06 │      1.11422e+10 │     1.47242e+06 │
+├────────────────┼─────────┼───────────┼───────────┼───────┼────────────────┼──────────────────┼─────────────────┤
+│ education-num  │   32537 │     10.08 │      2.57 │     1 │    16          │      6.61        │    15           │
+├────────────────┼─────────┼───────────┼───────────┼───────┼────────────────┼──────────────────┼─────────────────┤
+│ capital-gain   │   32537 │   1078.44 │   7387.96 │     0 │ 99999          │      5.45819e+07 │ 99999           │
+├────────────────┼─────────┼───────────┼───────────┼───────┼────────────────┼──────────────────┼─────────────────┤
+│ capital-loss   │   32537 │     87.37 │    403.1  │     0 │  4356          │ 162491           │  4356           │
+├────────────────┼─────────┼───────────┼───────────┼───────┼────────────────┼──────────────────┼─────────────────┤
+│ hours-per-week │   32537 │     40.44 │     12.35 │     1 │    99          │    152.45        │    98           │
+╘════════════════╧═════════╧═══════════╧═══════════╧═══════╧════════════════╧══════════════════╧═════════════════╛
+
+
+Categorical Statistics
+╒════════════════╤═════════╤══════════╤════════════════════╤════════╤════════════════════════════════════════════════════╕
+│ feature        │   count │   unique │ top                │   freq │ values                                             │
+╞════════════════╪═════════╪══════════╪════════════════════╪════════╪════════════════════════════════════════════════════╡
+│ workclass      │   30701 │        8 │ Private            │  22673 │ State-gov, Self-emp-not-inc, Private, Federal-gov, │
+│                │         │          │                    │        │ Local-gov, nan, Self-emp-inc, Without-pay, Never-  │
+│                │         │          │                    │        │ worked                                             │
+├────────────────┼─────────┼──────────┼────────────────────┼────────┼────────────────────────────────────────────────────┤
+│ education      │   32537 │       16 │ HS-grad            │  10494 │ Bachelors, HS-grad, 11th, Masters, 9th, Some-      │
+│                │         │          │                    │        │ college, Assoc-acdm, Assoc-voc, 7th-8th,           │
+│                │         │          │                    │        │ Doctorate, Prof-school, 5th-6th, 10th, 1st-4th,    │
+│                │         │          │                    │        │ Preschool, 12th                                    │
+├────────────────┼─────────┼──────────┼────────────────────┼────────┼────────────────────────────────────────────────────┤
+│ marital-status │   32537 │        7 │ Married-civ-spouse │  14970 │ Never-married, Married-civ-spouse, Divorced,       │
+│                │         │          │                    │        │ Married-spouse-absent, Separated, Married-AF-      │
+│                │         │          │                    │        │ spouse, Widowed                                    │
+├────────────────┼─────────┼──────────┼────────────────────┼────────┼────────────────────────────────────────────────────┤
+│ occupation     │   30694 │       14 │ Prof-specialty     │   4136 │ Adm-clerical, Exec-managerial, Handlers-cleaners,  │
+│                │         │          │                    │        │ Prof-specialty, Other-service, Sales, Craft-       │
+│                │         │          │                    │        │ repair, Transport-moving, Farming-fishing,         │
+│                │         │          │                    │        │ Machine-op-inspct, Tech-support, nan, Protective-  │
+│                │         │          │                    │        │ serv, Armed-Forces, Priv-house-serv                │
+├────────────────┼─────────┼──────────┼────────────────────┼────────┼────────────────────────────────────────────────────┤
+│ relationship   │   32537 │        6 │ Husband            │  13187 │ Not-in-family, Husband, Wife, Own-child,           │
+│                │         │          │                    │        │ Unmarried, Other-relative                          │
+├────────────────┼─────────┼──────────┼────────────────────┼────────┼────────────────────────────────────────────────────┤
+│ race           │   32537 │        5 │ White              │  27795 │ White, Black, Asian-Pac-Islander, Amer-Indian-     │
+│                │         │          │                    │        │ Eskimo, Other                                      │
+├────────────────┼─────────┼──────────┼────────────────────┼────────┼────────────────────────────────────────────────────┤
+│ sex            │   32537 │        2 │ Male               │  21775 │ Male, Female                                       │
+├────────────────┼─────────┼──────────┼────────────────────┼────────┼────────────────────────────────────────────────────┤
+│ native-country │   31955 │       41 │ United-States      │  29153 │ United-States, Cuba, Jamaica, India, nan, Mexico,  │
+│                │         │          │                    │        │ South, Puerto-Rico, Honduras, England, Canada,     │
+│                │         │          │                    │        │ Germany, Iran, Philippines, Italy, Poland,         │
+│                │         │          │                    │        │ Columbia, Cambodia, Thailand, Ecuador, Laos,       │
+│                │         │          │                    │        │ Taiwan, Haiti, Portugal, Dominican-Republic, El-   │
+│                │         │          │                    │        │ Salvador, France, Guatemala, China, Japan,         │
+│                │         │          │                    │        │ Yugoslavia, Peru, Outlying-US(Guam-USVI-etc),      │
+│                │         │          │                    │        │ Scotland, Trinadad&Tobago, Greece, Nicaragua,      │
+│                │         │          │                    │        │ Vietnam, Hong, Ireland, Hungary, Holand-           │
+│                │         │          │                    │        │ Netherlands                                        │
+├────────────────┼─────────┼──────────┼────────────────────┼────────┼────────────────────────────────────────────────────┤
+│ income         │   32537 │        2 │ <=50K              │  24698 │ <=50K, >50K                                        │
+╘════════════════╧═════════╧══════════╧════════════════════╧════════╧════════════════════════════════════════════════════╛
+
+
+Skewness And Kurtosis
+╒════════════════╤════════════╤════════════╤═════════════════════════╤════════════════════════════════════════╕
+│ feature        │   skewness │   kurtosis │ skewness_shape          │ kurtosis_shape                         │
+╞════════════════╪════════════╪════════════╪═════════════════════════╪════════════════════════════════════════╡
+│ age            │       0.53 │      -0.15 │ Long right tail         │ Light tails, platykurtic               │
+├────────────────┼────────────┼────────────┼─────────────────────────┼────────────────────────────────────────┤
+│ fnlwgt         │       1.46 │       6.4  │ Very long right tail    │ Heavy tails, leptokurtic               │
+├────────────────┼────────────┼────────────┼─────────────────────────┼────────────────────────────────────────┤
+│ education-num  │      -0.3  │       0.64 │ Approximately symmetric │ Light tails, platykurtic               │
+├────────────────┼────────────┼────────────┼─────────────────────────┼────────────────────────────────────────┤
+│ capital-gain   │      11.9  │     153.52 │ Very long right tail    │ Heavy tails, leptokurtic               │
+├────────────────┼────────────┼────────────┼─────────────────────────┼────────────────────────────────────────┤
+│ capital-loss   │       4.52 │      19.49 │ Very long right tail    │ Heavy tails, leptokurtic               │
+├────────────────┼────────────┼────────────┼─────────────────────────┼────────────────────────────────────────┤
+│ hours-per-week │       0.33 │       3.17 │ Approximately symmetric │ Approximately normal tails, mesokurtic │
+╘════════════════╧════════════╧════════════╧═════════════════════════╧════════════════════════════════════════╛
+
+
+Categorical Feature Pair Correlations > 0.5
+╒═══════════╤══════════════╤════════════╤═══════════════╕
+│   ranking │ feature1     │ feature2   │   correlation │
+╞═══════════╪══════════════╪════════════╪═══════════════╡
+│         1 │ relationship │ sex        │          0.65 │
+╘═══════════╧══════════════╧════════════╧═══════════════╛
+
+
+Numerical Correlations With Class
+╒════════════════╤═══════════════╤═══════════╕
+│ feature        │   correlation │   p_value │
+╞════════════════╪═══════════════╪═══════════╡
+│ education-num  │          0.34 │      0    │
+├────────────────┼───────────────┼───────────┤
+│ age            │          0.24 │      0    │
+├────────────────┼───────────────┼───────────┤
+│ hours-per-week │          0.23 │      0    │
+├────────────────┼───────────────┼───────────┤
+│ capital-gain   │          0.22 │      0    │
+├────────────────┼───────────────┼───────────┤
+│ capital-loss   │          0.15 │      0    │
+├────────────────┼───────────────┼───────────┤
+│ fnlwgt         │         -0.01 │      0.12 │
+╘════════════════╧═══════════════╧═══════════╛
+
+
+Categorical Correlations With Class
+╒════════════════╤═══════════════╤═══════════╕
+│ feature        │   correlation │   p_value │
+╞════════════════╪═══════════════╪═══════════╡
+│ relationship   │          0.45 │         0 │
+├────────────────┼───────────────┼───────────┤
+│ marital-status │          0.45 │         0 │
+├────────────────┼───────────────┼───────────┤
+│ education      │          0.37 │         0 │
+├────────────────┼───────────────┼───────────┤
+│ occupation     │          0.35 │         0 │
+├────────────────┼───────────────┼───────────┤
+│ sex            │          0.22 │         0 │
+├────────────────┼───────────────┼───────────┤
+│ workclass      │          0.16 │         0 │
+├────────────────┼───────────────┼───────────┤
+│ race           │          0.1  │         0 │
+├────────────────┼───────────────┼───────────┤
+│ native-country │          0.1  │         0 │
+╘════════════════╧═══════════════╧═══════════╛
+
+
+--- Data analysis complete! ---
+
+
+Removing duplicates
+  -  duplicates before removal: 24
+  -  duplicates after removal: 0
+
+Identifying ?s as missing values
+  -  missing values before identification: 0
+  -  missing values after identification: 4261
+
+--- Cleaning complete! ---
+
+
+Removing duplicates
+  -  duplicates before removal: 5
+  -  duplicates after removal: 0
+
+Identifying ?s as missing values
+  -  missing values before identification: 0
+  -  missing values after identification: 2203
+
+--- Cleaning complete! ---
+
+
+Imputing
+  -  missing values before imputation: 4261
+  -  missing values after imputation: 0
+
+Removing outliers
+  -  instances before removal: 32537
+  -  instances after removal: 29809
+
+Mapping categorical features
+  -  categorical features before mapping: 8
+  -  categorical features after mapping: 7
+
+Removing redundant features education-num, fnlwgt
+  -  features before removal: 14
+  -  features after removal: 12
+
+Converting categorical columns to binary
+  -  features and class before binary conversion:
+     native-country, sex, income
+  -  features and class after binary conversion:
+     native-country_United-States, sex_Male, income_<=50K
+
+Removing categories with variance below 0.01
+  -  instances before category removal: 29809
+  -  instances after category removal: 29673
+
+Transforming highly correlated features
+  -  features before transformation: 12
+  -  features after transformation: 52
+
+Encoding nominal categorical features
+Index(['age', 'workclass', 'education', 'occupation', 'race', 'capital-gain',
+       'capital-loss', 'hours-per-week', 'native-country_United-States',
+       'relationship_marital_status', 'Not-in-family_Never-married_sex_Male',
+       'Husband_Married-civ-spouse_sex_Male',
+       'Not-in-family_Divorced_sex_Male', 'Wife_Married-civ-spouse_sex_Male',
+       'Not-in-family_Married-spouse-absent_sex_Male',
+       'Own-child_Never-married_sex_Male', 'Unmarried_Never-married_sex_Male',
+       'Unmarried_Divorced_sex_Male', 'Unmarried_Separated_sex_Male',
+       'Own-child_Married-civ-spouse_sex_Male', 'Own-child_Separated_sex_Male',
+       'Other-relative_Married-civ-spouse_sex_Male',
+       'Own-child_Divorced_sex_Male', 'Other-relative_Never-married_sex_Male',
+       'Unmarried_Widowed_sex_Male', 'Other-relative_Separated_sex_Male',
+       'Not-in-family_Widowed_sex_Male',
+       'Unmarried_Married-spouse-absent_sex_Male',
+       'Other-relative_Divorced_sex_Male', 'Not-in-family_Separated_sex_Male',
+       'Own-child_Married-spouse-absent_sex_Male',
+       'Other-relative_Married-spouse-absent_sex_Male',
+       'Own-child_Widowed_sex_Male', 'Other-relative_Widowed_sex_Male',
+       'Not-in-family_Married-civ-spouse_sex_Male',
+       'Wife_Married-AF-spouse_sex_Male', 'Husband_Married-AF-spouse_sex_Male',
+       'Own-child_Married-AF-spouse_sex_Male',
+       'Other-relative_Married-AF-spouse_sex_Male', 'Adm-clerical_sex_Male',
+       'Exec-managerial_sex_Male', 'Handlers-cleaners_sex_Male',
+       'Prof-specialty_sex_Male', 'Other-service_sex_Male', 'Sales_sex_Male',
+       'Craft-repair_sex_Male', 'Transport-moving_sex_Male',
+       'Farming-fishing_sex_Male', 'Machine-op-inspct_sex_Male',
+       'Tech-support_sex_Male', 'Undisclosed_sex_Male',
+       'Protective-serv_sex_Male', 'income_<=50K'],
+      dtype='object')
+  -  categorical features before encoding: 4
+  -  categorical features after encoding: 0
+
+Reducing features with RFE
+  -  features before reduction: 100
+  -  features after reduction: 48
+
+Scaling
+
+--- Preprocessing of training data complete! ---
+
+
+Imputing
+  -  missing values before imputation: 2203
+  -  missing values after imputation: 0
+
+Removing outliers
+  -  instances before removal: 16276
+  -  instances after removal: 14913
+
+Mapping categorical features
+  -  categorical features before mapping: 8
+  -  categorical features after mapping: 7
+
+Removing redundant features education-num, fnlwgt
+  -  features before removal: 14
+  -  features after removal: 12
+
+Converting categorical columns to binary
+  -  features and class before binary conversion:
+     native-country, sex, income
+  -  features and class after binary conversion:
+     native-country_United-States, sex_Male, income_<=50K.
+
+Removing categories with variance below 0.01
+  -  instances before category removal: 14913
+  -  instances after category removal: 14825
+
+Transforming highly correlated features
+  -  features before transformation: 12
+  -  features after transformation: 50
+
+Encoding nominal categorical features
+Index(['age', 'workclass', 'education', 'occupation', 'race', 'capital-gain',
+       'capital-loss', 'hours-per-week', 'native-country_United-States',
+       'income_<=50K.', 'relationship_marital_status',
+       'Own-child_Never-married_sex_Male',
+       'Husband_Married-civ-spouse_sex_Male',
+       'Not-in-family_Never-married_sex_Male',
+       'Unmarried_Never-married_sex_Male', 'Wife_Married-civ-spouse_sex_Male',
+       'Unmarried_Widowed_sex_Male', 'Not-in-family_Divorced_sex_Male',
+       'Unmarried_Separated_sex_Male', 'Unmarried_Divorced_sex_Male',
+       'Not-in-family_Widowed_sex_Male', 'Own-child_Divorced_sex_Male',
+       'Not-in-family_Married-spouse-absent_sex_Male',
+       'Not-in-family_Separated_sex_Male',
+       'Unmarried_Married-spouse-absent_sex_Male',
+       'Own-child_Married-civ-spouse_sex_Male',
+       'Other-relative_Never-married_sex_Male', 'Own-child_Separated_sex_Male',
+       'Other-relative_Divorced_sex_Male',
+       'Other-relative_Married-civ-spouse_sex_Male',
+       'Wife_Married-AF-spouse_sex_Male', 'Other-relative_Separated_sex_Male',
+       'Other-relative_Married-spouse-absent_sex_Male',
+       'Own-child_Widowed_sex_Male',
+       'Own-child_Married-spouse-absent_sex_Male',
+       'Other-relative_Widowed_sex_Male',
+       'Not-in-family_Married-civ-spouse_sex_Male',
+       'Husband_Married-AF-spouse_sex_Male', 'Machine-op-inspct_sex_Male',
+       'Farming-fishing_sex_Male', 'Protective-serv_sex_Male',
+       'Undisclosed_sex_Male', 'Other-service_sex_Male',
+       'Prof-specialty_sex_Male', 'Craft-repair_sex_Male',
+       'Adm-clerical_sex_Male', 'Exec-managerial_sex_Male',
+       'Tech-support_sex_Male', 'Sales_sex_Male', 'Transport-moving_sex_Male',
+       'Handlers-cleaners_sex_Male'],
+      dtype='object')
+  -  categorical features before encoding: 4
+  -  categorical features after encoding: 0
+
+Reducing features with RFE
+  -  features before reduction: 100
+  -  features after reduction: 48
+
+Scaling
+
+--- Preprocessing of test data complete! ---
+
+==================================================
+MODELLING
+==================================================

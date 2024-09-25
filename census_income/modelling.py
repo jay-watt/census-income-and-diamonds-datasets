@@ -17,7 +17,6 @@ from common.preprocessing import print_process_heading
 from common.config import SEED
 from common.modelling import (display_modelling_results,
                               load_cleaned_data)
-from census_income.config import DATA_FILENAMES
 
 
 # Preparation functions
@@ -39,8 +38,8 @@ def initialise_models():
 def prepare_for_modelling():
     print_process_heading('modelling')
 
-    X_train, y_train = load_cleaned_data(DATA_FILENAMES['training'])
-    X_test, y_test = load_cleaned_data(DATA_FILENAMES['test'])
+    X_train, y_train = load_cleaned_data('training')
+    X_test, y_test = load_cleaned_data('test')
     return X_train, X_test, y_train, y_test, initialise_models()
 
 
@@ -77,6 +76,7 @@ def get_model_metrics(
 
 def assess_model(name, model, results, X_train, X_test, y_train, y_test):
     start_time = time.time()
+    print(X_train)
     model.fit(X_train, y_train)
     predictions = model.predict(X_test)
     probabilities = model.predict_proba(X_test)

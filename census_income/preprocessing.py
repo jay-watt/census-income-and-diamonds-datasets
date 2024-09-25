@@ -82,8 +82,10 @@ class CensusIncomePreprocessor(Preprocessor):
                 self.class_ = new_col_name
 
         # Move class column to end of dataframe
+        print(self.dfs[set_type].columns)
         self.dfs[set_type] = self.dfs[set_type][
-            [col for col in self.dfs[set_type] if col != self.class_] + [self.class_]
+            [col for col in self.dfs[set_type]
+                if col != self.class_] + [self.class_]
         ]
 
         # Get columns after conversion
@@ -157,7 +159,8 @@ class CensusIncomePreprocessor(Preprocessor):
 
         # Move class column to end of dataframe
         self.dfs[set_type] = self.dfs[set_type][
-            [col for col in self.dfs[set_type] if col != self.class_] + [self.class_]
+            [col for col in self.dfs[set_type]
+                if col != self.class_] + [self.class_]
         ]
 
         # Get columns after transformation and removal
