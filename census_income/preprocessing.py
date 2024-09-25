@@ -5,10 +5,8 @@ from sklearn.model_selection import cross_val_score
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 
-from common.analysis import get_feature_types
-from common.preprocessing import print_results
+from common.preprocessing import print_processing_results, Preprocessor, get_feature_types
 from common.config import SEED
-from common.analysis import Preprocessor
 from census_income.analysis import get_top_n_categories, load_original_data
 from census_income.config import (DATA_FILENAMES, MAPPINGS, RFE_SAMPLE_FRACTION,
                                   VAR_THRESHOLD)
@@ -52,7 +50,7 @@ class CensusIncomePreprocessor(Preprocessor):
         # Count missing values after imputation
         after = self.df.isnull().sum().sum()
 
-        print_results('missing values', 'imputation', before, after)
+        print_processing_results('missing values', 'imputation', before, after)
 
     def convert_to_binary(self):
         print('\nConverting categorical columns to binary')
@@ -91,7 +89,8 @@ class CensusIncomePreprocessor(Preprocessor):
         after = '\n     ' + ', '.join(new_cols)
 
         process_str = 'binary conversion'
-        print_results('features and class', process_str, before, after)
+        print_processing_results('features and class',
+                                 process_str, before, after)
 
     def identify_low_variance_categories(self):
         features = ['relationship', 'marital-status', 'occupation']
@@ -122,7 +121,8 @@ class CensusIncomePreprocessor(Preprocessor):
         # Count instances after outlier removal
         after = self.df.shape[0]
 
-        print_results('instances', 'category removal', before, after)
+        print_processing_results(
+            'instances', 'category removal', before, after)
 
     def transform_correlated_features(self):
         print("\nTransforming highly correlated features")
@@ -159,7 +159,7 @@ class CensusIncomePreprocessor(Preprocessor):
         # Get columns after transformation and removal
         after = len(self.df.columns[:-1])
 
-        print_results('features', 'transformation', before, after)
+        print_processing_results('features', 'transformation', before, after)
 
     def encode_nominal_features(self):
         print("\nEncoding nominal categorical features")
@@ -218,7 +218,8 @@ class CensusIncomePreprocessor(Preprocessor):
         _, categorical = get_feature_types(self.df)
         after = len(categorical)
 
-        print_results('categorical features', 'encoding', before, after)
+        print_processing_results(
+            'categorical features', 'encoding', before, after)
 
     def cross_validate_reduction(self):
         # Use sample of data for RFE cross-validation
@@ -283,7 +284,7 @@ class CensusIncomePreprocessor(Preprocessor):
         # Count features after reduction
         after = len(self.df.columns[:-1])
 
-        print_results('features', 'reduction', before, after)
+        print_processing_results('features', 'reduction', before, after)
 
     def preprocess(self):
         self.impute()

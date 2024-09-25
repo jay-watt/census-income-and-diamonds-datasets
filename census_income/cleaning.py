@@ -2,9 +2,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from common.analysis import (export_and_show_plot, format_plot_axes,
-                             print_process_heading)
-from common.preprocessing import Cleaner
+from common.preprocessing import (export_and_show_plot, format_plot_axes,
+                                  print_process_heading, Preprocessor)
 from common.config import ORIGINAL_DATA_DIR
 from census_income.config import COLUMN_NAMES, DATA_FILENAMES
 
@@ -20,7 +19,7 @@ def balance_class_categories(df):
     )
 
 
-class Part2Cleaner(Cleaner):
+class Part2Cleaner(Preprocessor):
     def __init__(self, df, process_str):
         super().__init__(df, process_str)
         self.top_categories = {}
@@ -98,7 +97,7 @@ def load_original_data(process_str):
         engine='python',
     )
 
-    cleaner = Part2Cleaner(training, process_str)
+    cleaner = Part2Cleaner(training, test, COLUMN_NAMES[-1])
     cleaner.set_data_name('training')
     cleaner.clean()
     cleaned_training = cleaner.df

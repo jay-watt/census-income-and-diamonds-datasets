@@ -1,6 +1,12 @@
+venv/
+common/__pycache__
 
-Part1/__pycache__
-Part2/__pycache__
-Part1_2_Common/__pycache__
-Plots/
-Tables/
+# Census income dataset
+census_income/__pycache__
+census_income/Plots/
+census_income/Tables/
+
+# Diamonds dataset
+diamonds/__pycache__
+diamonds/Plots/
+diamonds/Tables/

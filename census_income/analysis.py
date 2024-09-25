@@ -3,14 +3,14 @@ import pandas as pd
 import seaborn as sns
 from scipy.stats import pointbiserialr
 
-from ..common.preprocessing import (calculate_cramers_v, condense_tables,
-                                    create_plot_layout, export_and_show_plot,
-                                    format_plot_axes, get_feature_types, export_and_print_table,
-                                    run_feature_correlation_analysis,
-                                    run_univariate_numerical_analysis,
-                                    summarise)
-from ..common.config import PALETTE
-from cleaning import balance_class_categories, load_original_data
+from common.preprocessing import (calculate_cramers_v, condense_and_export_tables,
+                                  create_plot_layout, export_and_show_plot,
+                                  format_plot_axes, get_feature_types, save_and_print_table,
+                                  run_feature_correlation_analysis,
+                                  run_univariate_numerical_analysis,
+                                  summarise)
+from common.config import PALETTE
+from census_income.cleaning import balance_class_categories, load_original_data
 
 sns.set_theme(style='darkgrid', palette=PALETTE)
 
@@ -213,7 +213,7 @@ def plot_class_correlations(numerical_df, categorical_df):
 def display_class_correlations(corrs, feature_type):
     corrs.index += 1
     corrs.index.name = 'ranking'
-    export_and_print_table(
+    save_and_print_table(
         f'{feature_type} feature correlations with class',
         corrs,
     )
@@ -223,12 +223,12 @@ def run_class_correlation_analysis(df):
     numerical, categorical = get_feature_types(df)
 
     numerical_corrs = get_numerical_correlations(df, numerical)
-    export_and_print_table(
+    save_and_print_table(
         'numerical correlations with class', numerical_corrs
     )
 
     categorical_corrs = get_categorical_correlations(df, categorical)
-    export_and_print_table(
+    save_and_print_table(
         'categorical correlations with class', categorical_corrs
     )
 
@@ -261,6 +261,6 @@ def run_analysis():
     run_class_correlation_analysis(df)
 
     # Export tables
-    condense_tables()
+    condense_and_export_tables()
 
     print('\n--- Data analysis complete! ---\n')

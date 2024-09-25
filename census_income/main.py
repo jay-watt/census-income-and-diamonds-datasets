@@ -1,7 +1,3 @@
-from preprocessing import run_preprocessing
-from modelling import run_modelling
-from analysis import run_analysis
-from common.config import CLEANED_DATA_DIR
 import argparse
 import os
 import sys
@@ -11,8 +7,14 @@ census_income_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(census_income_dir)
 sys.path.append(parent_dir)
 
-
 warnings.filterwarnings('ignore')
+
+#fmt: off
+from preprocessing import run_preprocessing
+from modelling import run_modelling
+from analysis import run_analysis
+from common.config import CLEANED_DATA_DIR
+#fmt: on
 
 
 def main():

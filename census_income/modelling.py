@@ -13,7 +13,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
 from sklearn.tree import DecisionTreeClassifier
 
-from common.analysis import print_process_heading
+from common.preprocessing import print_process_heading
 from common.config import SEED
 from common.modelling import (display_modelling_results,
                               load_cleaned_data)
