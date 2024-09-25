@@ -1,6 +1,3 @@
-from common.config import CLEANED_DATA_DIR
-from diamonds.modelling import run_modelling
-from diamonds.preprocessing import run_preprocessing_and_analysis
 import argparse
 import os
 import sys
@@ -10,8 +7,13 @@ diamonds_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(diamonds_dir)
 sys.path.append(parent_dir)
 
-
 warnings.filterwarnings("ignore")
+
+#fmt: off
+from common.config import CLEANED_DATA_DIR
+from modelling import run_modelling
+from preprocessing import run_preprocessing_and_analysis
+#fmt: on
 
 
 def main():

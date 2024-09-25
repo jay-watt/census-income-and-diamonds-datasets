@@ -1,6 +1,6 @@
-=====================================================
-      HOW TO RUN DIAMONDS DATASET PROGRAM
-=====================================================
+# Diamonds Dataset
+
+## How to Run
 
 This program is structured into multiple parts, including analysis, preprocessing, and modelling. Follow the instructions below to run each part:
 
@@ -12,12 +12,7 @@ This program is structured into multiple parts, including analysis, preprocessin
     ```
 
 2. Running Specific Parts:
-   - Once inside the program directory, you have the option to run specific parts of the program using command-line arguments. The available options are `--analysis`, `--preprocessing`, `--modelling`, and `--all`. 
-   
-   - To run the analysis part, use:
-    ```
-    python main.py --analysis
-    ```
+   - Once inside the program directory, you have the option to run specific parts of the program using command-line arguments. The available options are `--preprocessing`, `--modelling` and `--all`. 
    
    - To run the preprocessing, use:
     ```
@@ -30,7 +25,7 @@ This program is structured into multiple parts, including analysis, preprocessin
     ```
     Note: If the cleaned data file does not exist in the 'Data/Cleaned' directory, you will be prompted to run preprocessing first.
    
-   - To run all parts in sequence, use the `--all` option:
+   - To run both parts in sequence, use the `--all` option:
     ```
     python main.py --all
     ```
