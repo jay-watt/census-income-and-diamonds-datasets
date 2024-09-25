@@ -32,6 +32,7 @@ This repository contains two separate projects focusing on data analysis: one on
 ### Census Income Dataset
 
 #### Running Specific Parts
+- NOTE: Preprocessing is currently buggy so only analysis is available!
 - Once inside the Diamonds project directory, you have the option to run specific parts of the program using command-line arguments. The available options are `--analysis`, `--preprocessing`, `--modelling` and `--all`.
 
 - **To run the analysis, use:**
@@ -41,7 +42,7 @@ This repository contains two separate projects focusing on data analysis: one on
 - **To run the preprocessing, use:**
   ```bash
   python main.py --preprocessing
-
+  
 - **To run the modelling, use:**
   ```bash
   python main.py --modelling
