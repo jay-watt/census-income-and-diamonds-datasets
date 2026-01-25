@@ -15,6 +15,8 @@ class CensusIncomePreprocessor(Preprocessor):
     def __init__(self, train, test, class_):
         super().__init__(train, test, class_)
 
+        self.top_categories = {}
+
         # Initialise low variance categories list
         self.categories_to_drop = {}
 
@@ -65,10 +67,14 @@ class CensusIncomePreprocessor(Preprocessor):
 
         # Convert categorical features to binary
         for feature in categorical:
-            top_category = get_top_n_categories(
-                self.dfs[set_type], feature, 1
-            ).index.tolist()[0]
-            top_category = top_category.rstrip('.')
+            if set_type == 'training':
+                top_category = get_top_n_categories(
+                    self.dfs[set_type], feature, 1
+                ).index.tolist()[0]
+                self.top_categories[feature] = top_category
+            else:
+                self.dfs[set_type][feature] = self.dfs[set_type][feature].str.rstrip('.')
+                top_category = self.top_categories[feature]
 
             # Create a new binary feature
             new_col_name = f"{feature}_{top_category}"
@@ -78,8 +84,8 @@ class CensusIncomePreprocessor(Preprocessor):
 
             # Drop original column
             self.dfs[set_type].drop(columns=feature, inplace=True)
-            print(f"Original class: {self.class_}")
             if feature == self.class_:
+                print(f"Original class: {self.class_}")
                 self.class_ = new_col_name
                 print(f"Updated class: {self.class_}")
 
@@ -286,7 +292,10 @@ class CensusIncomePreprocessor(Preprocessor):
             self.selector = self.selector.fit(X, y)
 
         # Reduce
-        X_reduced = X.loc[:, self.selector.support_]
+        X_reduced = X.iloc[:, self.selector.get_support()]
+
+        # Ensure indices are aligned before concatenation
+        X_reduced = X_reduced.reset_index(drop=True)
 
         # Concatenate the reduced data with class
         self.dfs[set_type] = pd.concat(
@@ -307,6 +316,7 @@ class CensusIncomePreprocessor(Preprocessor):
         self.transform_correlated_features(set_type)
         self.encode_nominal_features(set_type)
         self.reduce_features(set_type)
+
         self.scale(set_type)
         self.write_cleaned_data(set_type)
 
@@ -318,7 +328,10 @@ def run_preprocessing():
     # Preprocess training data
     preprocessor = CensusIncomePreprocessor(train, test, class_)
     preprocessor.preprocess('training')
+    print(preprocessor.top_categories)
+    print(preprocessor.class_)
 
     # Preprocess test data
-    preprocessor.df = test
+    preprocessor.class_ = 'income'
+    preprocessor.dfs['test'] = test
     preprocessor.preprocess('test')

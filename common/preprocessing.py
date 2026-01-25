@@ -570,24 +570,28 @@ class Preprocessor:
         X = self.dfs[set_type].drop(columns=self.class_)
         y = self.dfs[set_type][self.class_]
 
-        # Fit scaler if current dataset is training dataset
-        if set_type == "training":
-            self.scaler.fit(X)
+        # Identify constant columns
+        constant_cols = [col for col in X.columns if X[col].nunique() == 1]
+        scale_cols = [col for col in X.columns if col not in constant_cols]
 
-        # Scale
-        scaled_X = self.scaler.transform(X)
+        # Fit scaler if current dataset is training dataset
+        if set_type == "training" and scale_cols:
+            self.scaler.fit(X[scale_cols])
+
+        # Scale only non-constant columns
+        scaled_X = X.copy()
+        if scale_cols:
+            scaled_X[scale_cols] = self.scaler.transform(X[scale_cols])
 
         # Create dataframe from scaled data
         self.dfs[set_type] = pd.concat(
             [
-                pd.DataFrame(
-                    scaled_X,
-                    columns=X.columns,
-                ),
+                scaled_X.reset_index(drop=True),
                 y.reset_index(drop=True),
             ],
             axis=1,
         )
+
 
     def write_cleaned_data(self, set_type):
         # Ensure parent directory exists
@@ -604,3 +608,39 @@ class Preprocessor:
         )
 
         print(f"\n--- Preprocessing of {set_type} data complete! ---\n")
+
+    def impute(self, set_type):
+        print('\nImputing')
+
+        # Count missing values before imputation
+        before = self.dfs[set_type].isnull().sum().sum()
+
+        df = self.dfs[set_type]
+        class_col = self.class_
+
+        # Impute occupation and workclass with 'Undisclosed'
+        df['occupation'].fillna('Undisclosed', inplace=True)
+        df['workclass'].fillna('Undisclosed', inplace=True)
+
+        # Impute native-country with mode
+        mode_native_country = df['native-country'].mode()[0]
+        df['native-country'].fillna(mode_native_country, inplace=True)
+
+        # Impute other columns class-conditionally
+        for feature in df.columns:
+            if feature in ['occupation', 'workclass', 'native-country', class_col]:
+                continue
+            if df[feature].isnull().any():
+                for class_value in df[class_col].unique():
+                    mask = (df[class_col] == class_value)
+                    if df[feature].dtype.kind in 'biufc':  # numerical
+                        value = df.loc[mask, feature].mean()
+                    else:  # categorical
+                        value = df.loc[mask, feature].mode().iloc[0]
+                    df.loc[mask & df[feature].isnull(), feature] = value
+
+        self.dfs[set_type] = df
+
+        # Count missing values after imputation
+        after = self.dfs[set_type].isnull().sum().sum()
+        print_processing_results('missing values', 'imputation', before, after)
