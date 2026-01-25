@@ -12,11 +12,13 @@ def balance_class_categories(df):
     class_ = df.columns[-1]
     min_class_size = df[class_].value_counts().min()
 
-    return (
-        df.groupby(class_)
+    balanced = (
+        df.groupby(class_, group_keys=False)
         .apply(lambda x: x.sample(min_class_size))
-        .reset_index(drop=True)
+        .reset_index()
     )
+
+    return balanced.rename(columns={'index': class_})
 
 
 class CensusIncomePreprocessor(Preprocessor):
