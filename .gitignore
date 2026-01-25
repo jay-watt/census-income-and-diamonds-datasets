@@ -1,5 +1,6 @@
 venv/
 common/__pycache__
+.idea/
 
 # Census income dataset
 census_income/__pycache__
