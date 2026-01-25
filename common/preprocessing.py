@@ -49,6 +49,7 @@ def save_and_print_table(title, df):
         title_words = title_words[:-1]
 
     # Write dataframe to a spreadsheet
+    os.makedirs(TABLES_DIR, exist_ok=True)
     df.to_excel(f"{TABLES_DIR}/{sheet_name}.xlsx")
 
     # Print dataframe as a text table
@@ -258,8 +259,9 @@ def format_plot_axes(plot, xlabel, ylabel):
 
 
 def export_and_show_plot(filename):
+    os.makedirs(PLOTS_DIR, exist_ok=True)
     plt.savefig(f"{PLOTS_DIR}/{filename}.png")
-    # plt.show()
+    plt.show()
 
 
 # Univariate feature analysis functions
@@ -450,7 +452,7 @@ def run_feature_correlation_analysis(df):
 
     # Convert all values to numeric
     categorical_corr_matrix = categorical_corr_matrix.applymap(
-        pd.to_numeric, errors="coerce"
+        lambda x: pd.to_numeric(x, errors="coerce")
     )
 
     plot_correlation_matrix(categorical_corr_matrix, "categorical")
@@ -588,6 +590,12 @@ class Preprocessor:
         )
 
     def write_cleaned_data(self, set_type):
+        # Ensure parent directory exists
+        parent_dir = os.path.dirname(CLEANED_DATA_DIR)
+        os.makedirs(parent_dir, exist_ok=True)
+
+        # Ensure the directory exists
+        os.makedirs(CLEANED_DATA_DIR, exist_ok=True)
         self.dfs[set_type].reset_index(drop=True, inplace=True)
         self.dfs[set_type].index += 1
 
