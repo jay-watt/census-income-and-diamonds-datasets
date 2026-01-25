@@ -7,6 +7,7 @@ from sklearn.ensemble import (AdaBoostClassifier, GradientBoostingClassifier,
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import (accuracy_score, f1_score, precision_score,
                              recall_score, roc_auc_score)
+from sklearn.model_selection import GridSearchCV
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
@@ -18,6 +19,18 @@ from common.config import SEED
 from common.modelling import (display_modelling_results,
                               load_cleaned_data)
 
+PARAM_GRIDS = {
+    'KNN': {'n_neighbors': [3, 5, 7]},
+    'Naive Bayes': {},
+    'SVM': {'C': [0.1, 1.0]},
+    'Decision Tree': {'max_depth': [None, 5, 10]},
+    'Random Forest': {'n_estimators': [50, 100], 'max_depth': [None, 5]},
+    'AdaBoost': {'n_estimators': [50, 100]},
+    'Gradient Boosting': {'n_estimators': [50, 100], 'learning_rate': [0.05, 0.1]},
+    'Linear Discriminant Analysis': {},
+    'Multi-layer Perceptron': {'hidden_layer_sizes': [(50,), (100,)]},
+    'Logistic Regression': {'C': [0.1, 1.0]},
+}
 
 # Preparation functions
 def initialise_models():
@@ -76,13 +89,23 @@ def get_model_metrics(
 
 def assess_model(name, model, results, X_train, X_test, y_train, y_test):
     start_time = time.time()
-    print(X_train)
-    model.fit(X_train, y_train)
-    predictions = model.predict(X_test)
-    probabilities = model.predict_proba(X_test)
+    param_grid = PARAM_GRIDS.get(name, {})
+    if param_grid:
+        grid = GridSearchCV(model, param_grid, cv=3, scoring='accuracy', n_jobs=-1)
+        grid.fit(X_train, y_train)
+        best_model = grid.best_estimator_
+        print(f"Best params for {name}: {grid.best_params_}")
+    else:
+        best_model = model
+
+    start_time = time.time()
+    best_model.fit(X_train, y_train)
+    predictions = best_model.predict(X_test)
+    probabilities = best_model.predict_proba(X_test)
+    execution_time = time.time() - start_time
 
     results.append(
-        {'algorithm': name, 'execution_time': time.time() - start_time}
+        {'algorithm': name, 'execution_time': execution_time}
     )
 
     return get_model_metrics(
