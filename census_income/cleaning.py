@@ -11,14 +11,10 @@ from census_income.config import COLUMN_NAMES, DATA_FILENAMES
 def balance_class_categories(df):
     class_ = df.columns[-1]
     min_class_size = df[class_].value_counts().min()
-
-    balanced = (
-        df.groupby(class_, group_keys=False)
-        .apply(lambda x: x.sample(min_class_size))
-        .reset_index()
+    return pd.concat(
+        [group.sample(min_class_size, random_state=42) for _, group in df.groupby(class_)],
+        ignore_index=True
     )
-
-    return balanced.rename(columns={'index': class_})
 
 
 class CensusIncomePreprocessor(Preprocessor):
