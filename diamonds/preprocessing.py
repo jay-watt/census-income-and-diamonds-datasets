@@ -97,6 +97,7 @@ def plot_outliers(df, class_):
     # Calculate z-score for numerical features
     numerical, _ = get_feature_types(df)
     z_scores = np.abs(zscore(df[numerical]))
+    z_scores = pd.DataFrame(z_scores, columns=numerical, index=df.index)
 
     # Plot z-score scatterplots
     axes = create_plot_layout(len(numerical), 2)
