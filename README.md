@@ -1,6 +1,6 @@
-# Diamonds and Census Income Datasets
+# Census Income and Diamond Price Datasets
 
-This repository contains two separate projects focusing on data analysis: one on the Diamonds dataset and the other on the Census Income dataset. Each project is structured into multiple parts, including analysis, preprocessing, and modelling. Follow the instructions below to run each part of the projects.
+This repository contains two separate projects focusing on data analysis: one on the Census Income dataset and the other on the Diamond Price dataset. Each project is structured into multiple parts, including analysis, preprocessing, and modelling. Follow the instructions below to run each part of the projects.
 
 ## How to Run
 
@@ -9,25 +9,8 @@ This repository contains two separate projects focusing on data analysis: one on
    - Open a terminal window.
    - Navigate to the directory containing the specific program using the `cd` command, either `diamonds` or `census_income`. For example:
      ```bash
-     cd census-income-and-diamonds-datasets/diamonds
+     cd census-income-and-diamonds-datasets/census-income
      ```
-
-### Diamonds Dataset
-
-#### Running Specific Parts
-- Once inside the Diamonds project directory, you have the option to run specific parts of the program using command-line arguments. The available options are `--preprocessing`, `--modelling` and `--all`.
-
-- **To run the preprocessing, use:**
-  ```bash
-  python main.py --preprocessing
-
-- **To run the modelling, use:**
-  ```bash
-  python main.py --modelling
-
-- **To run both parts in sequence, use:**
-  ```bash
-  python main.py --all
 
 ### Census Income Dataset
 
@@ -41,7 +24,7 @@ This repository contains two separate projects focusing on data analysis: one on
 - **To run the preprocessing, use:**
   ```bash
   python main.py --preprocessing
-  
+
 - **To run the modelling, use:**
   ```bash
   python main.py --modelling
@@ -49,6 +32,25 @@ This repository contains two separate projects focusing on data analysis: one on
 - **To run both parts in sequence, use:**
   ```bash
   python main.py --all
+  
+
+### Diamond Price Dataset
+
+#### Running Specific Parts
+- Once inside the Diamond Price project directory, you have the option to run specific parts of the program using command-line arguments. The available options are `--preprocessing`, `--modelling` and `--all`.
+
+- **To run the preprocessing, use:**
+  ```bash
+  python main.py --preprocessing
+
+- **To run the modelling, use:**
+  ```bash
+  python main.py --modelling
+
+- **To run both parts in sequence, use:**
+  ```bash
+  python main.py --all
+
 
 ### Additional Notes
 
