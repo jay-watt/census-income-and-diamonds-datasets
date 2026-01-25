@@ -100,8 +100,13 @@ def get_model_metrics(model, results, X_train, y_train, y_test, predictions):
 
 def assess_model(name, model, results, X_train, X_test, y_train, y_test):
     start_time = time.time()
+    print(f"Training {name}...")
     model.fit(X_train, y_train)
+    print(f"Finished training {name} (Time taken: {train_end - train_start:.2f} seconds)")
+
+    print(f"Predicting with {name}...")
     predictions = model.predict(X_test)
+    print(f"Finished predicting with {name} (Time taken: {predict_end - predict_start:.2f} seconds)\n")
 
     results.append(
         {"algorithm": name, "execution_time": time.time() - start_time}
